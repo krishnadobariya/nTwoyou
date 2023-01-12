@@ -1,0 +1,287 @@
+notification status in sociacl media side
+-> 1 = request to follow You
+-> 2 = accepted request
+
+--> createdChat
+
+=============================================
+chat
+
+{
+    "user_1":"62b92abb678ed5696f559c59",
+    "user_2":"62b936e74b8657af236232c1",
+    "text":"hello",
+    "sender_id":"62b936e74b8657af236232c1"
+}
+
+chatReceive
+
+==============================================
+
+--> readUnread
+
+==============================================
+readUnread
+
+{
+    "chat_room": "62b937124b8657af236232c5",
+    "user_id": ""
+}
+
+chatReceive
+
+==============================================
+
+--> updateLatLong
+
+==============================================
+
+updateLatLong
+
+{
+    "user_id": "62b92abb678ed5696f559c59",
+    "longitude":"74.833771",
+    "latitude":"31.228125"
+}
+
+checkUpdate
+
+===============================================
+
+--> LikeOrDislikeUserForDating
+
+===============================================
+
+LikeOrDislikeUserForDating
+
+{
+    "user_id": "62bbf7a97f82978b8bfa9707",  
+    "like":1,
+    "like_user_id": "62bbf8027f82978b8bfa970f"
+}
+
+likeDislikeUser
+
+==================================================
+
+--> sendRequest
+
+==================================================
+
+sendRequest
+
+{
+    "user_id":"62bc18117f82978b8bfa9713",
+    "combine_id":"62c556e444d24d01bf213f1d",
+    "request_id":"62bbf7de7f82978b8bfa970b"
+}
+
+sendRequestUser
+
+===================================================
+
+--> createGroupRoom
+
+===================================================
+
+createGroupRoom
+
+   {
+    groupName: arg.group_name,
+    user1: arg.user1,
+    user2: arg.user2,
+    user3: arg.user3,
+    user4: arg.user4,
+    user5: arg.user5,
+    user6: arg.user6,
+    user7: arg.user7,
+    user8: arg.user8
+    }
+
+RoomCreated
+
+======================================================
+
+-->chatByGroup
+
+======================================================
+
+chatByGroup
+
+{
+    chat_room_id: chat_room_id,
+    sender_id: sender_id,
+    text: text
+}
+
+chatReceive
+
+======================================================
+
+--> readUnreadInGroup
+
+======================================================
+
+readUnreadInGroup
+
+{
+    group_chat_room: group_chat_room,
+    user_id: user_id
+}
+
+chatReceive
+
+==================================================
+
+==> sendFriendRequest
+
+===================================================
+
+sendFriendRequest
+
+{
+    user_id:"",
+    requested_id:""
+}
+
+getRequest
+
+=======================================================
+
+==> videoCall
+
+========================================================
+
+videoCall
+
+{
+     "chat_room_id": "6311f53df07be0cc369baa0d",
+     "sender_id" : "6311b1315bc32c9f0595d9db",
+     "receiver_id": "630d85c3135e093447567161"
+}
+
+
+videoCallReceive
+
+
+=====================================================
+
+==> videoCallEnd
+
+=====================================================
+
+videoCallEnd
+
+{
+     "chat_room_id": "6311f53df07be0cc369baa0d",
+     "sender_id" : "6311b1315bc32c9f0595d9db",
+     "receiver_id": "630d85c3135e093447567161"
+}
+
+
+videoCallEndReceive
+
+
+======================================================
+
+==> acceptVideoCall
+
+======================================================
+
+acceptVideoCall
+
+{
+    "chat_room_id" : "6311f53df07be0cc369baa0d"
+}
+
+acceptVideoCallReceive
+
+======================================================
+
+.......................................................................... session ........................................................
+
+==>joinSession
+
+======================================================
+
+joinSession
+
+{
+    "session_id":""
+}
+
+sessionJoinSuccess
+
+===============================================
+
+==>endSession
+
+===============================================
+endSession
+
+{
+    "session_id":"",
+    "create_session_user":""   // login user id
+}
+
+endSessionSuccess
+
+==============================================
+
+==>callForJoin
+
+==============================================
+callForJoin
+
+{
+    "session_id":"",
+    "create_session_user":""    // login user id
+}
+
+nowEnd
+
+=============================================
+
+==>commentOnLiveSession
+
+============================================
+
+commentOnLiveSession
+
+{
+    "session_id":"",
+    "user_id":"",      // login user id
+    "comment":
+}
+
+commentResponse
+
+============================================
+
+==>raiseHand
+
+============================================
+
+raiseHand
+
+{
+    "session_id":"",
+    "user_id":"",           // login user id
+}
+
+raiseHandSuccess
+
+===============================================
+
+==>raiseHandAccepted
+
+==============================================
+
+raiseHandAccepted
+
+{
+    "session_id":"",
+    "user_id":"",          // seeion created user id
+}
+
+raiseHandAcceptedSuccess
