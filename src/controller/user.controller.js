@@ -6058,7 +6058,8 @@ exports.forGetPassword = async (req, res) => {
 
         const findUser = await userModel.findOne({
             email: req.params.email
-        })
+        });
+        console.log("findUser::", findUser);
 
         if (findUser) {
 
@@ -6071,18 +6072,18 @@ exports.forGetPassword = async (req, res) => {
             }
 
 
-            const email = req.params.email
+            const email = req.params.email;
             var transporter = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
                 port: 587,
                 auth: {
-                    user: 'dobariyakrishna79@gmail.com',
-                    pass: 'cqcalljcuizvnath',
+                    user: 'n2youapp@gmail.com',
+                    pass: 'arraztjyrrsjzzxq',
                 }
             });
 
             var mailOptions = {
-                from: `dobariyakrishna79@gmail.com`,
+                from: `n2youapp@gmail.com`,
                 to: `${email}`,
                 subject: 'n2you forget password mail',
                 html: `
