@@ -19,6 +19,7 @@ const { url } = require("../utils/cloudinary.utils");
 
 exports.userRegister = async (req, res, next) => {
     try {
+
         const cloudinaryImageUploadMethod = async file => {
             return new Promise(resolve => {
                 cloudinary.uploader.upload(file, (err, res) => {
@@ -31,11 +32,10 @@ exports.userRegister = async (req, res, next) => {
             })
         }
 
-        const profileFile = req.files.profile
-        const urls = []
+        const profileFile = req.files.photo;
+        const urls = [];
         for (const fileForProfilePic of profileFile) {
             const { path } = fileForProfilePic
-
             const newPath = await cloudinaryImageUploadMethod(path)
             urls.push(newPath)
         }
