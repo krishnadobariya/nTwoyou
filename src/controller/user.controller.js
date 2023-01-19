@@ -6099,8 +6099,7 @@ exports.forGetPassword = async (req, res) => {
             
                 <p>If you did not request a new password, please let us know immediately by replying to this email.</p>
             
-                <p>Thanks</p>
-                <p>The N2You team</p>
+                <p>Thanks<br />N2You Team</p>
                 </body>
                 </html>`
             };
