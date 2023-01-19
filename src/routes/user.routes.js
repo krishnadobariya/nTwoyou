@@ -34,6 +34,7 @@ router.get('/existMailOrNot/:email', userController.checkMailExiesOrNot);
 router.get('/unfriend/:user_id/:unfriend_user_id', userController.unFriend);
 router.put('/notification/read/:user_id', userController.readNotification);
 router.put('/logout/:user_id' , userController.logout);
+router.delete("/delete/:id", userController.deleteAccount)
 // router.get('/add', userController.add)
 
 module.exports = router; 

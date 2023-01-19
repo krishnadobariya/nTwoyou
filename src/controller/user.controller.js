@@ -953,9 +953,7 @@ exports.userUpdate = async (req, res, next) => {
     }
 }
 
-
 // token update
-
 exports.tokenUpdate = async (req, res, next) => {
     try {
 
@@ -994,7 +992,6 @@ exports.tokenUpdate = async (req, res, next) => {
 }
 
 // Search Friend
-
 exports.searchFriend = async (req, res, next) => {
     try {
 
@@ -5759,7 +5756,6 @@ exports.noBasket = async (req, res, next) => {
     }
 }
 
-
 exports.moveBasket = async (req, res, next) => {
 
     try {
@@ -6057,7 +6053,6 @@ exports.getAllNotification = async (req, res, next) => {
     }
 }
 
-
 exports.forGetPassword = async (req, res) => {
     try {
 
@@ -6297,6 +6292,28 @@ exports.logout = async (req, res, next) => {
 
 
 
+
+    } catch (error) {
+        console.log(error);
+        res.status(status.INTERNAL_SERVER_ERROR).json(
+            new APIResponse("Something Went Wrong", "false", 500, error.message)
+        );
+    }
+}
+
+exports.deleteAccount = async (req, res, next) => {
+    try {
+
+        let userId = req.params.id;
+        console.log("userId::", userId);
+
+        const deleteUserData = await userModel.deleteOne({
+            _id: userId
+        });
+
+        res.status(status.OK).json(
+            new APIResponse("Delete User Account Successfully", "true", 200, "1")
+        )
 
     } catch (error) {
         console.log(error);
