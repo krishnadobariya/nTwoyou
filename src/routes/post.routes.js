@@ -4,7 +4,9 @@ const postController = require("../controller/post.controller");
 const upload = require("../utils/multer.postImages.utils");
 
 router.post('/upload/videos/:id', upload.array('posts'), postController.addPostVideo);
-router.post('/upload/images/:id', upload.array('posts'), postController.addPostImages);
+router.post('/upload/images/:id', upload.fields([{
+    name: "posts"
+}]), postController.addPostImages);
 router.get('/userWisePosts/:id', postController.getPostsbyUseId);
 router.get('/postWise/:post_id/:user_id/:req_id', postController.getPostById);
 router.put('/update/:user_id/:post_id', postController.EditPosts);

@@ -36,7 +36,7 @@ exports.addPostVideo = async (req, res, next) => {
 
             if (!checkInPost) {
                 const urls = [];
-                const files = req.files;
+                const files = req.files.posts;
 
                 for (const file of files) {
                     const { path } = file
@@ -239,7 +239,7 @@ exports.addPostImages = async (req, res, next) => {
             const checkInPost = await postModal.findOne({ userId: id });
             if (!checkInPost) {
                 const urls = [];
-                const files = req.files;
+                const files = req.files.posts;
 
                 for (const file of files) {
                     const { path } = file
@@ -325,7 +325,7 @@ exports.addPostImages = async (req, res, next) => {
 
             } else {
                 const urls = [];
-                const files = req.files;
+                const files = req.files.posts;
                 const finalData = [{
                     post: urls,
                     description: req.body.description

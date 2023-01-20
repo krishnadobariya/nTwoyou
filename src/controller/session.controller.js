@@ -142,7 +142,7 @@ exports.sessionCreate = async (req, res, next) => {
                             registrationToken,
                             title,
                             body,
-                            
+
                             sendBy,
                             true
                         );
@@ -197,7 +197,7 @@ exports.sessionCreate = async (req, res, next) => {
                             registrationToken,
                             title,
                             body,
-                            
+
                             sendBy,
                             true
                         );
@@ -304,7 +304,7 @@ exports.sessionCreate = async (req, res, next) => {
                             registrationToken,
                             title,
                             body,
-                            
+
                             sendBy,
                             true
                         );
@@ -4295,7 +4295,8 @@ exports.uploadImages = async (req, res, next) => {
         if (userFindForImages) {
 
             const urls = [];
-            const files = req.files;
+            const files = req.files.upload;
+            console.log("files:::", files);
 
             for (const file of files) {
                 const { path } = file
@@ -4397,7 +4398,7 @@ exports.uploadVideos = async (req, res, next) => {
         if (userFindForVideos) {
 
             const urls = [];
-            const files = req.files;
+            const files = req.files.upload;
 
             for (const file of files) {
                 const { path } = file
@@ -5696,7 +5697,7 @@ exports.rejectOrAccept = async (req, res, next) => {
 
 
 
-                            console.log("findUserInRequestModel" , findUserInRequestModel);
+                            console.log("findUserInRequestModel", findUserInRequestModel);
                             if (findUserInRequestModel) {
                                 for (const user of findUserInRequestModel.RequestedEmails) {
                                     if (user.accepted == 2) {
@@ -5706,7 +5707,7 @@ exports.rejectOrAccept = async (req, res, next) => {
                             }
 
 
-                            console.log("friendList" , friendList);
+                            console.log("friendList", friendList);
                             for (const notifyUser of friendList) {
                                 const findUserInUserModel = await userModel.findOne({
                                     _id: notifyUser
@@ -5761,7 +5762,7 @@ exports.rejectOrAccept = async (req, res, next) => {
                                     _id: req.params.user_id,
                                 })
 
-                                
+
 
                                 if (findUserInUserModel.fcm_token) {
                                     const title = "No one Selected";
@@ -5795,7 +5796,7 @@ exports.rejectOrAccept = async (req, res, next) => {
                     )
                 } else {
 
-                   
+
                     if ((req.params.like_user_id).toString() != findSession.participants[0].participants_1) {
                         users.push(findSession.participants[0].participants_1)
                     }
@@ -6047,7 +6048,7 @@ exports.rejectOrAccept = async (req, res, next) => {
                             }
 
 
-                            console.log("paricipant" , paricipant);
+                            console.log("paricipant", paricipant);
                             for (const notifyUser of paricipant) {
                                 const findUserInUserModel = await userModel.findOne({
                                     _id: notifyUser

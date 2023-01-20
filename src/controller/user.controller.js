@@ -379,7 +379,7 @@ exports.userUpdate = async (req, res, next) => {
             })
         }
 
-        const profileFile = req.files.profile
+        const profileFile = req.files.photo
 
         const urls = []
         for (const fileForProfilePic of profileFile) {
