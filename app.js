@@ -5,6 +5,13 @@ const morgan = require('morgan');
 const bodyParser = require("body-parser");
 require('./src/db/conn');
 const cron = require("node-cron");
+const path = require('path');
+const hbs = require('hbs');
+
+const static_path = path.join(__dirname, "./src/views");
+console.log("static_path::", static_path);
+app.set('view engine', 'hbs');
+app.set('views', static_path);
 
 app.use(cors());
 app.use(morgan('dev'));
@@ -14,6 +21,13 @@ app.use(express.static('public'));
 app.use('/images', express.static('images'));
 const Notification = require("./src/helper/firebaseHelper");
 
+app.get("/privacy_policy", (req,res) => {
+    res.render('privacy_policy')
+})
+
+app.get("/term_condition", (req, res) => {
+    res.render('term_condition')
+})
 
 cron.schedule("*/60 * * * * *", async function () {
 
@@ -41,14 +55,14 @@ cron.schedule("*/60 * * * * *", async function () {
         let second = date.getUTCSeconds();
         now = new Date(`${year}-${month + 1}-${dates} ${hour}:${minute}:${second}`)
 
-       
+
         var sec_num = (finalUserSessionDate - now) / 1000;
         var days = Math.floor(sec_num / (3600 * 24));
         var hours = Math.floor((sec_num - (days * (3600 * 24))) / 3600);
         var minutes = Math.floor((sec_num - (days * (3600 * 24)) - (hours * 3600)) / 60);
 
 
-        
+
 
         if (hours == 0 && days == 0 && minutes == 30) {
 
@@ -197,13 +211,13 @@ cron.schedule("*/60 * * * * *", async function () {
                         const title = findCreateSessionUser.firstName;
                         const body = "after 30 min join session";
 
-                
+
                         const sendBy = (findCreateSessionUser._id).toString();
                         const registrationToken = findUser.fcm_token
                         Notification.sendPushNotificationFCM(
                             registrationToken,
                             title,
-                            body,y,
+                            body, y,
                             sendBy,
                             true
                         );
@@ -270,13 +284,13 @@ cron.schedule("*/60 * * * * *", async function () {
                         const title = findCreateSessionUser.firstName;
                         const body = "after 30 min join session";
 
-                
+
                         const sendBy = (findCreateSessionUser._id).toString();
                         const registrationToken = findUser.fcm_token
                         Notification.sendPushNotificationFCM(
                             registrationToken,
                             title,
-                            body,y,
+                            body, y,
                             sendBy,
                             true
                         );
@@ -323,12 +337,12 @@ cron.schedule("*/60 * * * * *", async function () {
                 _id: getDate.cretedSessionUser
             })
 
-         
+
             if (findUserInUserModel.fcm_token) {
                 const title = findUserInUserModel.firstName;
                 const body = "your session started!";
 
-        
+
                 const sendBy = (findUserInUserModel._id).toString();
                 const registrationToken = findUserInUserModel.fcm_token
                 Notification.sendPushNotificationFCM(
@@ -373,10 +387,8 @@ cron.schedule("*/60 * * * * *", async function () {
         } else {
         }
     }
-   
+
 });
-
-
 
 const userRoutes = require("./src/routes/user.routes");
 const postRoutes = require("./src/routes/post.routes");
