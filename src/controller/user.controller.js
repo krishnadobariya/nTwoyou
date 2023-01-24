@@ -289,6 +289,7 @@ exports.userLogin = async (req, res, next) => {
     try {
 
         let type = req.body.type;
+        console.log("data::", req.body);
 
         if (type == 1) {
             const updateData = await userModel.updateOne({
@@ -367,44 +368,38 @@ exports.userLogin = async (req, res, next) => {
             });
 
             if (findUser) {
-                if (req.body.password == findUser.password) {
-                    const data = {
-                        _id: findUser._id,
-                        polyDating: findUser.polyDating,
-                        HowDoYouPoly: findUser.HowDoYouPoly,
-                        loveToGive: findUser.loveToGive,
-                        polyRelationship: findUser.polyRelationship,
-                        email: findUser.email,
-                        firstName: findUser.firstName,
-                        birthDate: findUser.birthDate,
-                        identity: findUser.identity,
-                        relationshipSatus: findUser.relationshipSatus,
-                        IntrestedIn: findUser.IntrestedIn,
-                        Bio: findUser.Bio,
-                        photo: findUser.photo,
-                        longitude: findUser.location.coordinates[0],
-                        latitude: findUser.location.coordinates[1],
-                        fcm_token: findUser.fcm_token,
-                        hopingToFind: findUser.hopingToFind,
-                        jobTitle: findUser.jobTitle,
-                        wantChildren: findUser.wantChildren,
-                        bodyType: findUser.extraAtrribute.bodyType,
-                        height: findUser.extraAtrribute.height,
-                        smoking: findUser.extraAtrribute.smoking,
-                        drinking: findUser.extraAtrribute.drinking,
-                        hobbies: findUser.extraAtrribute.hobbies,
-                        phoneNumber: findUser.phoneNumber,
-                        countryCode: findUser.countryCode,
-                        password: findUser.password
-                    }
-                    res.status(status.OK).json(
-                        new APIResponse("login success", "true", 200, "1", data)
-                    )
-                } else {
-                    res.status(status.NOT_FOUND).json(
-                        new APIResponse("not match credential", "false", 404, "0")
-                    )
+                const data = {
+                    _id: findUser._id,
+                    polyDating: findUser.polyDating,
+                    HowDoYouPoly: findUser.HowDoYouPoly,
+                    loveToGive: findUser.loveToGive,
+                    polyRelationship: findUser.polyRelationship,
+                    email: findUser.email,
+                    firstName: findUser.firstName,
+                    birthDate: findUser.birthDate,
+                    identity: findUser.identity,
+                    relationshipSatus: findUser.relationshipSatus,
+                    IntrestedIn: findUser.IntrestedIn,
+                    Bio: findUser.Bio,
+                    photo: findUser.photo,
+                    longitude: findUser.location.coordinates[0],
+                    latitude: findUser.location.coordinates[1],
+                    fcm_token: findUser.fcm_token,
+                    hopingToFind: findUser.hopingToFind,
+                    jobTitle: findUser.jobTitle,
+                    wantChildren: findUser.wantChildren,
+                    bodyType: findUser.extraAtrribute.bodyType,
+                    height: findUser.extraAtrribute.height,
+                    smoking: findUser.extraAtrribute.smoking,
+                    drinking: findUser.extraAtrribute.drinking,
+                    hobbies: findUser.extraAtrribute.hobbies,
+                    phoneNumber: findUser.phoneNumber,
+                    countryCode: findUser.countryCode,
+                    password: findUser.password
                 }
+                res.status(status.OK).json(
+                    new APIResponse("login success", "true", 200, "1", data)
+                )
             } else {
                 res.status(status.NOT_FOUND).json(
                     new APIResponse("User not Found", "false", 404, "0")
