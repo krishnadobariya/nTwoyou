@@ -168,6 +168,14 @@ const userSchema = mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    social_id: {
+        type: String,
+        default: null
+    },
+    type: {
+        type: Number, //1-normal 2-facebook 3-google 4-apple
+        required: true,
     }
 
 }, {

@@ -40,9 +40,7 @@ exports.userRegister = async (req, res, next) => {
             urls.push(newPath)
         }
 
-
         const files = req.files.photo
-
         for (const file of files) {
             const { path } = file
 
@@ -57,9 +55,7 @@ exports.userRegister = async (req, res, next) => {
             )
         } else {
             const phoneNum = req.body.phone_num;
-
             const findNumber = await userModel.findOne({ phoneNumber: `${phoneNum}` });
-
 
             if (findNumber) {
                 res.status(status.ALREADY_REPORTED).json(
@@ -99,9 +95,12 @@ exports.userRegister = async (req, res, next) => {
                     },
                     phoneNumber: phoneNum,
                     countryCode: req.body.country_code,
-                    password: req.body.password
+                    password: req.body.password,
+                    social_id: req.body.social_id,
+                    type: req.body.type
                 })
                 const saveData = await user.save();
+                console.log("saveData::", saveData);
 
                 const findUser = await userModel.findOne({
                     email: req.body.email
@@ -133,7 +132,9 @@ exports.userRegister = async (req, res, next) => {
                     hobbies: req.body.hobbies,
                     phoneNumber: phoneNum,
                     countryCode: req.body.country_code,
-                    password: req.body.password
+                    password: req.body.password,
+                    social_id: req.body.social_id,
+                    type: req.body.type
                 }
                 if (findUser.polyDating == 1) {
                     const storeInHistory = relationShipHistoryModel({
@@ -6139,9 +6140,9 @@ exports.checkMailExiesOrNot = async (req, res) => {
     try {
 
         const findUser = await userModel.findOne({
-            email: req.params.email
-        }).select("email")
-
+            email: req.params.email,
+            type: req.body.type
+        }).select("email");
 
         if (findUser) {
             res.status(status.OK).json(
