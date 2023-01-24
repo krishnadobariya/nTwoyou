@@ -335,7 +335,9 @@ exports.userLogin = async (req, res, next) => {
                         hobbies: findUser.extraAtrribute.hobbies,
                         phoneNumber: findUser.phoneNumber,
                         countryCode: findUser.countryCode,
-                        password: findUser.password
+                        password: findUser.password,
+                        social_id: findUser.social_id,
+                        type: findUser.type
                     }
                     res.status(status.OK).json(
                         new APIResponse("login success", "true", 200, "1", data)
@@ -395,7 +397,9 @@ exports.userLogin = async (req, res, next) => {
                     hobbies: findUser.extraAtrribute.hobbies,
                     phoneNumber: findUser.phoneNumber,
                     countryCode: findUser.countryCode,
-                    password: findUser.password
+                    password: findUser.password,
+                    social_id: findUser.social_id,
+                    type: findUser.type
                 }
                 res.status(status.OK).json(
                     new APIResponse("login success", "true", 200, "1", data)
