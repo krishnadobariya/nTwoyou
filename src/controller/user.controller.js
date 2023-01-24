@@ -6202,7 +6202,7 @@ exports.checkMailExiesOrNot = async (req, res) => {
 
         const findUser = await userModel.findOne({
             email: req.params.email,
-            type: req.body.type
+            type: req.params.type
         }).select("email");
 
         if (findUser) {
@@ -6214,6 +6214,7 @@ exports.checkMailExiesOrNot = async (req, res) => {
                 new APIResponse("you can use this email", "true", 200, "1", { emailExistOrNot: false })
             );
         }
+
     } catch (error) {
         res.status(status.INTERNAL_SERVER_ERROR).json(
             new APIResponse("Something Went Wrong", "false", 500, error.message)
