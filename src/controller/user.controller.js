@@ -426,147 +426,152 @@ exports.userUpdate = async (req, res, next) => {
 
         const userFind = await userModel.findOne({
             _id: req.params.user_id
-        })
+        });
 
-        const cloudinaryImageUploadMethod = async file => {
-            return new Promise(resolve => {
-                cloudinary.uploader.upload(file, (err, res) => {
-                    if (err) return res.status(500).send("upload image error")
-                    resolve({
-                        res: res.secure_url
-                    })
-                }
-                )
-            })
-        }
-
-        const profileFile = req.files.photo
-
-        const urls = []
-        for (const fileForProfilePic of profileFile) {
-            const { path } = fileForProfilePic
-
-            const newPath = await cloudinaryImageUploadMethod(path)
-            urls.push(newPath)
-        }
-
-
-        const files = req.files.photo
-
-        const urlAll = req.body.images
-        const removeFirst = urlAll.slice(1, -1)
-        const url = removeFirst.split(",")
-
-
-
-
-        if (url[0] == ' ') {
-
-            if (files[0] == undefined) {
-                const findUser = await userModel.findOne({
-                    _id: req.params.user_id
-                })
-
-                urls.push(...findUser.photo)
-
-            } else {
-
-                const findUser = await userModel.findOne({
-                    _id: req.params.user_id
-                })
-
-                urls.push(...findUser.photo)
-
-                const files = req.files.photo
-                for (const file of files) {
-                    const { path } = file
-
-                    const newPath = await cloudinaryImageUploadMethod(path)
-                    urls.push(newPath)
-                }
-                // for (const file of files) {
-
-                //     const findUser = await userModel.findOne({
-                //         _id: req.params.user_id
-                //     })
-
-                //     urls.push(...findUser.photo)
-
-                //     console.log(urls);
-
-                //     const url = req.body.images
-                //     console.log(url);
-
-                //     for (const data of url) {
-                //         const indexOfObject = urls.findIndex(object => {
-                //             return object.res == data;
-                //         });
-                //         urls.splice(indexOfObject, 1);
-                //     }
-
-                //     console.log("urls", urls);
-                //     const { path } = file;
-                //     const newPath = await cloudinaryImageUploadMethod(path)
-                //     urls.push(newPath)
-                // }
-            }
-
-        } else {
-            urls.push()
-
-            if (files == undefined) {
-
-                const findUser = await userModel.findOne({
-                    _id: req.params.user_id
-                })
-
-                urls.push(...findUser.photo)
-
-                for (const data of url) {
-                    const indexOfObject = urls.findIndex(object => {
-                        return object.res == data;
-                    });
-                    urls.splice(indexOfObject, 1);
-                }
-
-            } else {
-
-                const findUser = await userModel.findOne({
-                    _id: req.params.user_id
-                })
-
-                urls.push(...findUser.photo)
-
-                for (const data of url) {
-                    const indexOfObject = urls.findIndex(object => {
-                        return object.res == data;
-                    });
-                    urls.splice(indexOfObject, 1);
-                }
-
-                const files = req.files.photo
-
-                for (const file of files) {
-                    const { path } = file
-
-                    const newPath = await cloudinaryImageUploadMethod(path)
-                    urls.push(newPath)
-                }
-
-            }
-
-        }
         if (userFind == null) {
+
             res.status(status.NOT_FOUND).json(
                 new APIResponse("User not Found", "false", 404, "0")
             )
+
         } else {
 
+            /* For Photo Uploading */
+            const cloudinaryImageUploadMethod = async (file) => {
+                return new Promise(resolve => {
+                    cloudinary.uploader.upload(file, (err, res) => {
+                        console.log("file:::", file);
+                        if (err) return res.status(500).send("upload image error")
+                        resolve({
+                            res: res.secure_url
+                        })
+                    })
+                })
+            }
+            const profileFile = req.files.photo;
+            const urls = []
+            for (const fileForProfilePic of profileFile) {
+                const { path } = fileForProfilePic
+                const newPath = await cloudinaryImageUploadMethod(path)
+                urls.push(newPath)
+            }
+            /* End For Photo Uploading */
 
+            // ===============================================================================
+
+            // const files = req.files.photo
+
+            /*
+            const urlAll = req.body.images;
+            const removeFirst = urlAll.slice(1, -1)
+            const url = removeFirst.split(",")
+    
+            if (url[0] == ' ') {
+    
+                if (files[0] == undefined) {
+                    const findUser = await userModel.findOne({
+                        _id: req.params.user_id
+                    })
+    
+                    urls.push(...findUser.photo)
+    
+                } else {
+    
+                    const findUser = await userModel.findOne({
+                        _id: req.params.user_id
+                    })
+    
+                    urls.push(...findUser.photo)
+    
+                    const files = req.files.photo
+                    for (const file of files) {
+                        const { path } = file
+    
+                        const newPath = await cloudinaryImageUploadMethod(path)
+                        urls.push(newPath)
+                    }
+                    // for (const file of files) {
+    
+                    //     const findUser = await userModel.findOne({
+                    //         _id: req.params.user_id
+                    //     })
+    
+                    //     urls.push(...findUser.photo)
+    
+                    //     console.log(urls);
+    
+                    //     const url = req.body.images
+                    //     console.log(url);
+    
+                    //     for (const data of url) {
+                    //         const indexOfObject = urls.findIndex(object => {
+                    //             return object.res == data;
+                    //         });
+                    //         urls.splice(indexOfObject, 1);
+                    //     }
+    
+                    //     console.log("urls", urls);
+                    //     const { path } = file;
+                    //     const newPath = await cloudinaryImageUploadMethod(path)
+                    //     urls.push(newPath)
+                    // }
+                }
+    
+            } else {
+                urls.push()
+    
+                if (files == undefined) {
+    
+                    const findUser = await userModel.findOne({
+                        _id: req.params.user_id
+                    })
+    
+                    urls.push(...findUser.photo)
+    
+                    for (const data of url) {
+                        const indexOfObject = urls.findIndex(object => {
+                            return object.res == data;
+                        });
+                        urls.splice(indexOfObject, 1);
+                    }
+    
+                } else {
+    
+                    const findUser = await userModel.findOne({
+                        _id: req.params.user_id
+                    })
+    
+                    urls.push(...findUser.photo)
+    
+                    for (const data of url) {
+                        const indexOfObject = urls.findIndex(object => {
+                            return object.res == data;
+                        });
+                        urls.splice(indexOfObject, 1);
+                    }
+    
+                    const files = req.files.photo
+    
+                    for (const file of files) {
+                        const { path } = file
+    
+                        const newPath = await cloudinaryImageUploadMethod(path)
+                        urls.push(newPath)
+                    }
+    
+                }
+    
+            }
+            */
+
+
+            // ===============================================================================
+
+
+
+            /* For Unique Phone Number When User Update Data */
             const phoneNum = req.body.phone_num;
-
             const countryCode = req.body.country_code;
-
             const findNumber = await userModel.find(
                 {
                     _id:
@@ -575,17 +580,18 @@ exports.userUpdate = async (req, res, next) => {
                     }
                 }
             );
+
             const findNumberUnique = [];
             for (const findvalidNumber of findNumber) {
-
                 if (findvalidNumber.phoneNumber == phoneNum) {
                     findNumberUnique.push("yes")
                 } else {
                     findNumberUnique.push("no")
                 }
             }
+            /* End : For Unique Phone Number When User Update Data */
 
-
+            /* For Unique Email When User Update Data */
             const findEmailUnique = [];
             const findEmail = await userModel.find(
                 {
@@ -596,76 +602,86 @@ exports.userUpdate = async (req, res, next) => {
                 }
             );
 
-
             for (const findvalidEmail of findEmail) {
-
                 if (findvalidEmail.email == req.body.email) {
                     findEmailUnique.push("yes")
                 } else {
                     findEmailUnique.push("no")
                 }
             }
+            /* End : For Unique Email When User Update Data */
 
             const resultForNumber = findNumberUnique.includes("yes");
-            const resultForEmail = findEmailUnique.includes("yes")
+            const resultForEmail = findEmailUnique.includes("yes");
 
-            if (resultForNumber) {
+            if (resultForNumber == true) {
+
                 res.status(status.ALREADY_REPORTED).json(
                     new APIResponse("Number Already Exist, It must be Unique", "false", 208, "0")
                 )
-            } else if (resultForEmail) {
+
+            } else if (resultForEmail == true) {
+
                 res.status(status.ALREADY_REPORTED).json(
                     new APIResponse("Not Allowed, Email Already Exist", "false", 208, "0")
                 )
+
             } else {
 
+                console.log("=============================================================================");
+                console.log(req.body);
+                console.log("=============================================================================");
 
-                const updateUser = await userModel.updateOne({
-                    _id: req.params.user_id
-                }, {
-                    $set: {
-                        polyDating: req.body.poly_dating,
-                        HowDoYouPoly: req.body.how_do_you_poly,
-                        loveToGive: req.body.love_to_give,
-                        polyRelationship: req.body.poly_relationship,
-                        email: req.body.email,
-                        firstName: req.body.first_name,
-                        birthDate: req.body.birth_date,
-                        identity: req.body.identity,
-                        relationshipSatus: req.body.relationship_satus,
-                        IntrestedIn: req.body.intrested_in,
-                        Bio: req.body.bio,
-                        location: {
-                            type: "Point",
-                            coordinates: [
-                                parseFloat(req.body.longitude),
-                                parseFloat(req.body.latitude),
-                            ],
-                        },
-                        photo: urls,
-                        fcm_token: req.body.fcm_token,
-                        hopingToFind: req.body.hoping_to_find,
-                        jobTitle: req.body.job_title,
-                        wantChildren: req.body.want_children,
-                        extraAtrribute: {
-                            bodyType: req.body.body_type,
-                            height: req.body.height,
-                            smoking: req.body.smoking,
-                            drinking: req.body.drinking,
-                            hobbies: req.body.hobbies
-                        },
-                        phoneNumber: phoneNum,
-                        countryCode: req.body.country_code
+                const updateUser = await userModel.updateOne(
+                    {
+                        _id: req.params.user_id
+                    },
+                    {
+                        $set: {
+                            polyDating: req.body.poly_dating,
+                            HowDoYouPoly: req.body.how_do_you_poly,
+                            loveToGive: req.body.love_to_give,
+                            polyRelationship: req.body.poly_relationship,
+                            email: req.body.email,
+                            firstName: req.body.first_name,
+                            birthDate: req.body.birth_date,
+                            identity: req.body.identity,
+                            relationshipSatus: req.body.relationship_satus,
+                            IntrestedIn: req.body.intrested_in,
+                            Bio: req.body.bio,
+                            location: {
+                                type: "Point",
+                                coordinates: [
+                                    parseFloat(req.body.longitude),
+                                    parseFloat(req.body.latitude),
+                                ],
+                            },
+                            photo: urls,
+                            profile: urls[0] ? urls[0].res : "",
+                            fcm_token: req.body.fcm_token,
+                            hopingToFind: req.body.hoping_to_find,
+                            jobTitle: req.body.job_title,
+                            wantChildren: req.body.want_children,
+                            extraAtrribute: {
+                                bodyType: req.body.body_type,
+                                height: req.body.height,
+                                smoking: req.body.smoking,
+                                drinking: req.body.drinking,
+                                hobbies: req.body.hobbies
+                            },
+                            phoneNumber: phoneNum,
+                            countryCode: req.body.country_code
+                        }
                     }
-                })
+                );
 
                 const findUser = await userModel.findOne({
                     email: req.body.email
                 })
 
-
                 const data = {
-                    _id: findUser._id,
+                    _id: req.params.user_id, //findUser._id,
+                    profile: urls[0] ? urls[0].res : "",
                     polyDating: req.body.poly_dating,
                     HowDoYouPoly: req.body.how_do_you_poly,
                     loveToGive: req.body.love_to_give,
@@ -693,316 +709,9 @@ exports.userUpdate = async (req, res, next) => {
                     countryCode: req.body.country_code
                 }
 
-
                 res.status(status.OK).json(
-                    new APIResponse("User Successfully updated!", "true", 200, "1", data)
+                    new APIResponse("User Data Successfully updated!", "true", 200, "1", data)
                 )
-
-
-                // next();
-
-                // const find_User = await userModel.findOne({
-                //     email: req.body.email
-                // })
-
-
-                // const findUsers = await userModel.findOne({
-                //     _id: find_User._id,
-                //     polyDating: 0
-                // })
-
-
-                // if (findUsers == null) {
-
-                // } else {
-
-
-                //     const findUsers = await userModel.findOne({
-                //         email: req.body.email
-                //     })
-
-                //     var matchUser = await userModel.find({
-                //         _id: {
-                //             $ne: findUsers._id
-                //         },
-                //         polyDating: 0
-                //     })
-
-
-                //     const identity = findUsers.identity
-                //     const relationshipSatus = findUsers.relationshipSatus
-                //     const IntrestedIn = findUsers.IntrestedIn
-                //     const hopingToFind = findUsers.hopingToFind
-                //     const wantChildren = findUsers.wantChildren
-
-
-                //     for (const chechUser of matchUser) {
-
-                //         console.log("chechUser", chechUser._id);
-                //         var local = 0;
-                //         if (chechUser.identity == identity) {
-                //             var local = local + 1
-                //         } else {
-                //             var local = local + 0
-                //         }
-
-                //         if (chechUser.relationshipSatus == relationshipSatus) {
-                //             var local = local + 1
-                //         } else {
-                //             var local = local + 0
-                //         }
-
-
-                //         if (chechUser.IntrestedIn == IntrestedIn) {
-                //             var local = local + 1
-                //         } else {
-                //             var local = local + 0
-                //         }
-
-                //         if (chechUser.hopingToFind == hopingToFind) {
-                //             var local = local + 1
-                //         } else {
-                //             var local = local + 0
-                //         }
-
-                //         if (chechUser.wantChildren == wantChildren) {
-                //             var local = local + 1
-                //         } else {
-                //             var local = local + 0
-                //         }
-
-
-                //         const matchProfile = local / 5 * 100;
-
-                //         const profileMatch = `${parseInt(matchProfile)}`
-
-
-
-                //         if (matchProfile >= 50 && matchProfile <= 100) {
-
-                //             const findInNoBasket1 = await userModel.findOne({
-                //                 _id: findUsers._id,
-                //                 "noBasket.userId": chechUser._id
-                //             })
-
-                //             const findInNoBasket2 = await userModel.findOne({
-                //                 _id: chechUser._id,
-                //                 "noBasket.userId": findUsers._id
-                //             })
-
-                //             if (findInNoBasket1) {
-                //                 await userModel.updateOne({
-                //                     _id: findUsers._id,
-                //                 }, {
-                //                     $pull: {
-                //                         noBasket: {
-                //                             userId: chechUser._id
-                //                         }
-                //                     }
-                //                 })
-
-                //                 await userModel.updateOne({
-                //                     _id: findUsers._id,
-                //                     "yesBasket.userId": chechUser._id
-                //                 },
-                //                     {
-                //                         $set: {
-                //                             "yesBasket.$.match": profileMatch
-                //                         }
-                //                     })
-
-                //             } else {
-
-                //                 const findInYesBasket1 = await userModel.findOne({
-                //                     _id: findUsers._id,
-                //                     "yesBasket.userId": chechUser._id
-                //                 })
-
-
-                //                 if (findInYesBasket1) {
-
-                //                     const addInUser = await userModel.updateOne({
-                //                         _id: findUsers._id,
-                //                         "yesBasket.userId": req.body.id
-                //                     }, {
-                //                         $set: {
-                //                             "yesBasket.$.match": profileMatch
-                //                         }
-                //                     })
-
-                //                 } else {
-                //                     const addInUser = await userModel.updateOne({
-                //                         _id: findUsers._id
-                //                     }, {
-                //                         $push: {
-                //                             yesBasket: {
-                //                                 match: profileMatch,
-                //                                 userId: chechUser._id
-                //                             }
-                //                         }
-                //                     })
-                //                 }
-                //             }
-
-                //             if (findInNoBasket2) {
-
-                //                 await userModel.updateOne({
-                //                     _id: chechUser._id,
-                //                 }, {
-                //                     $pull: {
-                //                         noBasket: {
-                //                             userId: findUsers._id
-                //                         }
-                //                     }
-                //                 })
-                //             } else {
-
-                //                 const findInYesBasket1 = await userModel.findOne({
-                //                     _id: chechUser._id,
-                //                     "yesBasket.userId": findUsers._id
-                //                 })
-
-                //                 if (findInYesBasket1) {
-                //                     const addInUser = await userModel.updateOne({
-                //                         _id: chechUser._id,
-                //                         "yesBasket.userId": findUsers._id
-                //                     }, {
-                //                         $set: {
-                //                             "yesBasket.$.match": profileMatch
-                //                         }
-                //                     })
-
-                //                 } else {
-
-                //                     const addInUser = await userModel.updateOne({
-                //                         _id: chechUser._id
-                //                     }, {
-                //                         $push: {
-                //                             yesBasket: {
-                //                                 match: profileMatch,
-                //                                 userId: findUsers._id
-                //                             }
-                //                         }
-                //                     })
-                //                 }
-                //             }
-
-                //         } else {
-
-                //             const findInYesBasket1 = await userModel.findOne({
-                //                 _id: findUsers._id,
-                //                 "yesBasket.userId": chechUser._id
-                //             })
-
-
-                //             const findInYesBasket2 = await userModel.findOne({
-                //                 _id: chechUser._id,
-                //                 "yesBasket.userId": findUsers._id
-                //             })
-
-
-                //             if (findInYesBasket1) {
-
-                //                 await userModel.updateOne({
-                //                     _id: findUsers._id,
-                //                 }, {
-                //                     $pull: {
-                //                         yesBasket: {
-                //                             userId: chechUser._id
-                //                         }
-                //                     }
-                //                 })
-
-
-                //                 await userModel.updateOne({
-                //                     _id: findUsers._id,
-                //                     "noBasket.userId": chechUser._id
-                //                 },
-                //                     {
-                //                         $set: {
-                //                             "noBasket.$.match": profileMatch
-                //                         }
-                //                     })
-
-                //             } else {
-                //                 const findInNoBasket1 = await userModel.findOne({
-                //                     _id: findUsers._id,
-                //                     "noBasket.userId": chechUser._id
-                //                 })
-
-
-                //                 if (findInNoBasket1) {
-                //                     const addInUser = await userModel.updateOne({
-                //                         _id: findUsers._id,
-                //                         "noBasket.userId": chechUser._id
-                //                     }, {
-                //                         $set: {
-                //                             "noBasket.$.match": profileMatch
-                //                         }
-                //                     })
-
-                //                 } else {
-
-                //                     const addInUser = await userModel.updateOne({
-                //                         _id: findUsers._id
-                //                     }, {
-                //                         $push: {
-                //                             noBasket: {
-                //                                 match: profileMatch,
-                //                                 userId: chechUser._id
-                //                             }
-                //                         }
-                //                     })
-                //                 }
-                //             }
-
-
-                //             if (findInYesBasket2) {
-
-                //                 await userModel.updateOne({
-                //                     _id: chechUser._id,
-                //                 }, {
-                //                     $pull: {
-                //                         yesBasket: {
-                //                             userId: findUsers._id
-                //                         }
-                //                     }
-                //                 })
-                //             } else {
-                //                 const findInNoBasket1 = await userModel.findOne({
-                //                     _id: chechUser._id,
-                //                     "noBasket.userId": findUsers._id
-                //                 })
-
-                //                 if (findInNoBasket1) {
-                //                     const addInUser = await userModel.updateOne({
-                //                         _id: chechUser._id,
-                //                         "noBasket.userId": findUsers._id
-                //                     }, {
-                //                         $set: {
-                //                             "noBasket.$.match": profileMatch
-                //                         }
-                //                     })
-                //                 } else {
-                //                     const addInUser = await userModel.updateOne({
-                //                         _id: chechUser._id
-                //                     }, {
-                //                         $push: {
-                //                             noBasket: {
-                //                                 match: profileMatch,
-                //                                 userId: findUsers._id
-                //                             }
-                //                         }
-                //                     })
-
-                //                 }
-                //             }
-
-
-                //         }
-
-                //     }
-                // }
             }
         }
 
@@ -6384,3 +6093,4 @@ exports.deleteAccount = async (req, res, next) => {
         );
     }
 }
+
