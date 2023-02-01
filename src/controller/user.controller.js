@@ -32,7 +32,7 @@ exports.userRegister = async (req, res, next) => {
             })
         }
 
-        const profileFile = req.files.photo;
+        const profileFile = req.files.profile;
         const urls = [];
         for (const fileForProfilePic of profileFile) {
             const { path } = fileForProfilePic
