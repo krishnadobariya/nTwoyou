@@ -7,7 +7,7 @@ const userController = require("../controller/user.controller");
 
 router.post('/register', upload.fields([{
     name: "photo",
-    maxCount: 6
+    maxCount: 10
 }, {
     name: "profile",
     maxCount: 1
@@ -15,7 +15,7 @@ router.post('/register', upload.fields([{
 router.post('/login', userController.userLogin);
 router.post('/update/:user_id', upload.fields([{
     name: "photo",
-    maxCount: 6
+    maxCount: 10
 },
 // {
 //     name: "profile",

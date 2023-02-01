@@ -6059,11 +6059,6 @@ exports.logout = async (req, res, next) => {
             );
         }
 
-
-
-
-
-
     } catch (error) {
         console.log(error);
         res.status(status.INTERNAL_SERVER_ERROR).json(

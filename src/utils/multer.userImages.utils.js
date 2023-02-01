@@ -21,7 +21,7 @@ var upload = multer({
             return cb(new Error('Only jpg or jpeg allowed'));
         }
     }
-});
+})
 
 
 module.exports = upload;
