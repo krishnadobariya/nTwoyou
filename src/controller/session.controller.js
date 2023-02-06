@@ -5447,6 +5447,199 @@ exports.getLikeUserDetail = async (req, res, next) => {
             _id: req.params.session_id
         })
 
+        if (findSession == null) {
+
+            res.status(status.NOT_FOUND).json(
+                new APIResponse("session not found", "true", 404, "1",)
+            )
+
+        } else {
+
+            const findSessionComment = await sessionComment.findOne({
+                sessionId: req.params.session_id
+            })
+
+            const user = findSessionComment
+            const final_response = [];
+
+            if (user.LikeSession.participants_3[0] == undefined) {
+                console.log("111111111111111111");
+                if (findSession.participants[0].participants_3 != null) {
+
+                    const findUser = await userModel.findOne({
+                        _id: findSession.participants[0].participants_3
+                    })
+                    console.log("iddd:::::::::::::", findSession);
+
+                    if (findUser == null) {
+
+                        // res.status(status.NOT_FOUND).json(
+                        //     new APIResponse("User not Found", "false", 404, "0")
+                        // )
+
+                    } else {
+
+                        const response = {
+                            _id: findUser._id,
+                            userName: findUser.firstName,
+                            userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                            totalLikeCount: 0,
+                            likeStatus: 0
+                        }
+                        final_response.push(response)
+
+                    }
+
+                }
+
+            } else {
+                console.log("222222222222222222222222");
+                const count = (user.LikeSession.participants_3)
+                const findUser = await userModel.findOne({
+                    _id: findSession.participants[0].participants_3
+                })
+
+                const response = {
+                    _id: findUser._id,
+                    userName: findUser.firstName,
+                    userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                    totalLikeCount: count.length,
+                    likeStatus: 1
+                }
+                final_response.push(response)
+
+            }
+
+            if (user.LikeSession.participants_2[0] == undefined) {
+                console.log("3333333333333333333333");
+                if (findSession.participants[0].participants_2 != null) {
+                    console.log("------------------", findSession.participants[0].participants_2);
+                    const findUser = await userModel.findOne({
+                        _id: findSession.participants[0].participants_2
+                    })
+                    console.log("findUser:::", findUser);
+
+                    if (findUser == null) {
+
+                        // res.status(status.NOT_FOUND).json(
+                        //     new APIResponse("User not Found", "false", 404, "0")
+                        // )
+
+                    } else {
+
+                        const response = {
+                            _id: findUser._id,
+                            userName: findUser.firstName,
+                            userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                            totalLikeCount: 0,
+                            likeStatus: 0
+                        }
+
+                        final_response.push(response)
+
+                    }
+
+                }
+
+            } else {
+                console.log("44444444444444444444444");
+                const count = (user.LikeSession.participants_2)
+                const findUser = await userModel.findOne({
+                    _id: findSession.participants[0].participants_2
+                })
+
+                const response = {
+                    _id: findUser._id,
+                    userName: findUser.firstName,
+                    userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                    totalLikeCount: count.length,
+                    likeStatus: 1
+                }
+                final_response.push(response)
+
+            }
+
+            if (user.LikeSession.participants_1[0] == undefined) {
+                console.log("5555555555555555555555555555555");
+                if (findSession.participants[0].participants_1 != null) {
+
+                    const findUser = await userModel.findOne({
+                        _id: findSession.participants[0].participants_1
+                    });
+                    console.log("findUser::55", findUser);
+
+                    if (findUser == null) {
+
+                        // res.status(status.NOT_FOUND).json(
+                        //     new APIResponse("User not Found", "false", 404, "0")
+                        // )
+
+                    } else {
+
+                        const response = {
+                            _id: findUser._id,
+                            userName: findUser.firstName,
+                            userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                            totalLikeCount: 0,
+                            likeStatus: 0
+                        }
+                        final_response.push(response)
+
+                    }
+
+                }
+
+            } else {
+                console.log("6666666666666666666666");
+                const count = (user.LikeSession.participants_1)
+                const findUser = await userModel.findOne({
+                    _id: findSession.participants[0].participants_1
+                })
+
+                if (findUser == null) {
+
+                    res.status(status.NOT_FOUND).json(
+                        new APIResponse("User not Found", "false", 404, "0")
+                    )
+
+                } else {
+
+                    const response = {
+                        _id: findUser._id,
+                        userName: findUser.firstName,
+                        userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                        totalLikeCount: count.length,
+                        likeStatus: 1
+                    }
+                    final_response.push(response)
+
+                }
+
+            }
+
+            res.status(status.OK).json(
+                new APIResponse("total like session user with count", "true", 200, "1", final_response)
+            )
+
+        }
+
+    } catch (error) {
+
+        console.log("Error::---", error);
+        res.status(status.INTERNAL_SERVER_ERROR).json(
+            new APIResponse("Something Went Wrong", "false", 500, "0", error.message)
+        )
+
+    }
+}
+
+exports.getLikeUserDetail2 = async (req, res, next) => {
+    try {
+
+        const findSession = await sessionModel.findOne({
+            _id: req.params.session_id
+        })
+
         if (findSession) {
 
             const findSessionComment = await sessionComment.findOne({
@@ -5459,19 +5652,33 @@ exports.getLikeUserDetail = async (req, res, next) => {
 
             if (user.LikeSession.participants_3[0] == undefined) {
 
-                const findUser = await userModel.findOne({
-                    _id: findSession.participants[0].participants_3
-                })
+                if (findSession.participants[0].participants_3 != null) {
 
-                const response = {
-                    _id: findUser._id,
-                    userName: findUser.firstName,
-                    userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
-                    totalLikeCount: 0,
-                    likeStatus: 0
+                    const findUser = await userModel.findOne({
+                        _id: findSession.participants[0].participants_3
+                    })
+                    console.log("iddd:::::::::::::", findSession);
+                    if (findUser == null) {
+
+                        res.status(status.NOT_FOUND).json(
+                            new APIResponse("User not Found", "false", 404, "0")
+                        )
+
+                    } else {
+
+                        const response = {
+                            _id: findUser._id,
+                            userName: findUser.firstName,
+                            userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                            totalLikeCount: 0,
+                            likeStatus: 0
+                        }
+                        final_response.push(response)
+
+                    }
+
                 }
 
-                final_response.push(response)
             } else {
 
                 const count = (user.LikeSession.participants_3)
@@ -5492,20 +5699,36 @@ exports.getLikeUserDetail = async (req, res, next) => {
 
             if (user.LikeSession.participants_2[0] == undefined) {
 
-                const findUser = await userModel.findOne({
-                    _id: findSession.participants[0].participants_2
-                })
+                if (findSession.participants[0].participants_2 != null) {
 
-                const response = {
-                    _id: findUser._id,
-                    userName: findUser.firstName,
-                    userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
-                    totalLikeCount: 0,
-                    likeStatus: 0
+                    const findUser = await userModel.findOne({
+                        _id: findSession.participants[0].participants_2
+                    })
+
+                    if (findUser == null) {
+
+                        res.status(status.NOT_FOUND).json(
+                            new APIResponse("User not Found", "false", 404, "0")
+                        )
+
+                    } else {
+
+                        const response = {
+                            _id: findUser._id,
+                            userName: findUser.firstName,
+                            userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                            totalLikeCount: 0,
+                            likeStatus: 0
+                        }
+
+                        final_response.push(response)
+
+                    }
+
                 }
 
-                final_response.push(response)
             } else {
+
                 const count = (user.LikeSession.participants_2)
 
                 const findUser = await userModel.findOne({
@@ -5525,19 +5748,34 @@ exports.getLikeUserDetail = async (req, res, next) => {
 
             if (user.LikeSession.participants_1[0] == undefined) {
 
-                const findUser = await userModel.findOne({
-                    _id: findSession.participants[0].participants_1
-                })
+                if (findSession.participants[0].participants_1 != null) {
 
-                const response = {
-                    _id: findUser._id,
-                    userName: findUser.firstName,
-                    userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
-                    totalLikeCount: 0,
-                    likeStatus: 0
+                    const findUser = await userModel.findOne({
+                        _id: findSession.participants[0].participants_1
+                    })
+
+                    if (findUser == null) {
+
+                        res.status(status.NOT_FOUND).json(
+                            new APIResponse("User not Found", "false", 404, "0")
+                        )
+
+                    } else {
+
+                        const response = {
+                            _id: findUser._id,
+                            userName: findUser.firstName,
+                            userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                            totalLikeCount: 0,
+                            likeStatus: 0
+                        }
+
+                        final_response.push(response)
+
+                    }
+
                 }
 
-                final_response.push(response)
             } else {
 
                 const count = (user.LikeSession.participants_1)
@@ -5547,15 +5785,25 @@ exports.getLikeUserDetail = async (req, res, next) => {
                     _id: findSession.participants[0].participants_1
                 })
 
-                const response = {
-                    _id: findUser._id,
-                    userName: findUser.firstName,
-                    userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
-                    totalLikeCount: count.length,
-                    likeStatus: 1
-                }
+                if (findUser == null) {
 
-                final_response.push(response)
+                    res.status(status.NOT_FOUND).json(
+                        new APIResponse("User not Found", "false", 404, "0")
+                    )
+
+                } else {
+
+                    const response = {
+                        _id: findUser._id,
+                        userName: findUser.firstName,
+                        userProfile: findUser.photo[0] ? findUser.photo[0].res : "",
+                        totalLikeCount: count.length,
+                        likeStatus: 1
+                    }
+
+                    final_response.push(response)
+
+                }
             }
 
             res.status(status.OK).json(
