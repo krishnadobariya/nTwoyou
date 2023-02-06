@@ -260,7 +260,6 @@ exports.userRegister = async (req, res, next) => {
                                 }
                             })
 
-
                             const updateINExistUser = await userModel.updateOne({
                                 _id: chechUser._id
                             }, {
@@ -1224,10 +1223,18 @@ exports.getAllUser = async (req, res, next) => {
 
         const id = await userModel.findOne({
             _id: req.params.user_id
-        }).select('_id')
+        }).select('_id');
+        console.log("id:::", id);
 
+        if (id == null) {
+           
+            res.status(status.NOT_FOUND).json(
+                new APIResponse("No User Found", 'false', 404, '0')
+            )
 
-        const searchName = await userModel.find({ polyDating: 0, _id: { $ne: req.params.user_id } }).maxTimeMS(10);
+        } else {
+
+            const searchName = await userModel.find({ polyDating: 0, _id: { $ne: req.params.user_id } }).maxTimeMS(10);
 
         const reaquestedAllEmail = [];
         searchName.map((result, index) => {
@@ -1738,6 +1745,8 @@ exports.getAllUser = async (req, res, next) => {
                     "data": (startIndex).toString() == (NaN) ? final_response : final_response.slice(startIndex, endIndex)
                 })
             }
+        }
+
         }
 
     } catch (error) {
