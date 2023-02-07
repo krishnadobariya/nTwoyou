@@ -1883,8 +1883,10 @@ exports.userAllFriendPost = async (req, res, next) => {
     try {
         const statusByEmail = [];
         const data = await requestsModel.findOne({ userId: req.params.user_id });
+        console.log("data::", data);
+        const user = await userModal.findOne({ _id: req.params.user_id });
+        console.log("user::", user);
 
-        const user = await userModal.findOne({ _id: req.params.user_id })
         if (data != null && user != null) {
 
             const datas = await requestsModel.findOne({ userId: req.params.user_id });
@@ -1896,8 +1898,8 @@ exports.userAllFriendPost = async (req, res, next) => {
 
             }
             for (const result of allRequestedEmail) {
-                const resultEmail = result.userId;
 
+                const resultEmail = result.userId;
                 const findInBlockUser = await blockUnblockModel.findOne({
                     userId: req.params.user_id,
                     "blockUnblockUser.blockUserId": resultEmail
@@ -2863,7 +2865,8 @@ exports.userAllFriendPost = async (req, res, next) => {
                     email: "$email",
                     posts: "$req_data"
                 }
-            }])
+            }]);
+            console.log("meargAllTable::", meargAllTable);
 
 
             for (const meargAllTableEmail of meargAllTable) {
@@ -3288,12 +3291,12 @@ exports.userAllFriendPost = async (req, res, next) => {
         }
 
     } catch (error) {
-        console.log(error);
+        console.log("error:::::::", error);
         res.status(status.INTERNAL_SERVER_ERROR).json(
             new APIResponse("Something Went Wrong", "false", 500, "0", error.message)
         )
     }
-}
+} 
 
 exports.reportAdd = async (req, res, next) => {
     try {

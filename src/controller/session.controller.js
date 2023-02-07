@@ -23,10 +23,13 @@ exports.sessionCreate = async (req, res, next) => {
 
         const findUserInUserModel = await userModel.findOne({
             _id: req.body.creted_session_user
-        })
+        });
+        console.log("findUserInUserModel::", findUserInUserModel);
+
+        console.log("req.body.creted_session_user::::", req.body.creted_session_user);
 
 
-        if (findUserInUserModel) {
+        if (findUserInUserModel != null) {
 
             var val = Math.floor(1000 + Math.random() * 9000);
             console.log(val);
@@ -81,12 +84,14 @@ exports.sessionCreate = async (req, res, next) => {
                 const p2 = req.body.participants_2 ? req.body.participants_2 : ""
                 const p3 = req.body.participants_3 ? req.body.participants_3 : ""
 
+                if (findUser != null) {
 
+                    for (const allRequestedEmail of findUser.RequestedEmails) {
 
-                for (const allRequestedEmail of findUser.RequestedEmails) {
+                        if (((allRequestedEmail.userId).toString() != (p1).toString()) && ((allRequestedEmail.userId).toString() != (p2).toString()) && ((allRequestedEmail.userId).toString() != (p3).toString())) {
+                            allRequestedEmails.push(allRequestedEmail.userId)
+                        }
 
-                    if (((allRequestedEmail.userId).toString() != (p1).toString()) && ((allRequestedEmail.userId).toString() != (p2).toString()) && ((allRequestedEmail.userId).toString() != (p3).toString())) {
-                        allRequestedEmails.push(allRequestedEmail.userId)
                     }
 
                 }
@@ -5511,7 +5516,7 @@ exports.getLikeUserDetail = async (req, res, next) => {
             }
 
             if (user.LikeSession.participants_2[0] == undefined) {
-                console.log("3333333333333333333333");
+
                 if (findSession.participants[0].participants_2 != null) {
                     console.log("------------------", findSession.participants[0].participants_2);
                     const findUser = await userModel.findOne({

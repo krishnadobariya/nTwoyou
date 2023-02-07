@@ -380,28 +380,36 @@ exports.replyCommentEdit = async (req, res, next) => {
 exports.replyCommitDelete = async (req, res, next) => {
     try {
 
-
         const findPost = await commentModel.findOne({ postId: req.params.post_id });
         if (findPost == null) {
+
             res.status(status.NOT_FOUND).json(
                 new APIResponse("Post Not Found", "false", 404, "0")
             );
+
         } else {
+
             const athorizeUser = await commentModel.findOne({
                 postId: req.params.post_id,
                 "comments.replyUser.userId": req.params.user_id,
                 "comments.replyUser._id": req.params.comment_reply_id
-            })
+            });
+            console.log("athorizeUser::", athorizeUser);
 
             if (athorizeUser == null) {
+
                 const athorizeUser = await commentModel.findOne({
                     postId: req.params.post_id,
                     "comments.replyUser._id": req.params.comment_reply_id
-                })
+                });
+                console.log("athorizeUser:::----", athorizeUser);
+
                 if (athorizeUser == null) {
+
                     res.status(status.UNAUTHORIZED).json(
                         new APIResponse("No Have any access", "false", 401, "0")
                     );
+
                 } else {
 
                     const athorizeUser = await commentModel.findOne({
