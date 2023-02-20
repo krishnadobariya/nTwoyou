@@ -6370,25 +6370,32 @@ exports.rejectList = async (req, res, next) => {
 
         const findUser = await rejectListModel.find({
             userId: req.params.user_id
-        })
+        });
+        // console.log("findUser::", findUser);
 
         const final_response = [];
         const session_detail = [];
-        const rej_user_detail = []
+        const rej_user_detail = [];
+
         for (const data of findUser) {
 
-
             for (const data1 of data.matchUserId) {
+                console.log("data1::", data1);
 
                 const findUser = await userModel.findOne({
                     _id: data1.userId
-                })
+                });
+                // console.log("findUser-now::", findUser);
+
                 const findRequestModel = await requestsModel.findOne({
                     userId: req.params.user_id
-                })
+                });
+                // console.log("==========================================");
+
                 const findUsers = await userModel.findOne({
                     _id: data1.userId
                 })
+
                 if (findRequestModel) {
 
                     const findData = await requestsModel.findOne({
@@ -6397,9 +6404,11 @@ exports.rejectList = async (req, res, next) => {
                     })
 
                     if (findData) {
+
                         for (const user of findRequestModel.RequestedEmails) {
 
                             if ((user.userId).toString() == (findUser._id).toString()) {
+
                                 if (user.accepted == 2) {
 
                                     const findChatRoomId1 = await chatRoomModel.findOne({
@@ -6413,6 +6422,7 @@ exports.rejectList = async (req, res, next) => {
                                     })
 
                                     if (findChatRoomId1) {
+
                                         rej_user_detail.push({
                                             sessionId: data.session_id,
                                             accept_by: findUser.userId,
@@ -6423,7 +6433,9 @@ exports.rejectList = async (req, res, next) => {
                                             userName: findUser.firstName,
                                             room: findChatRoomId1._id
                                         })
+
                                     } else if (findChatRoomId2) {
+
                                         rej_user_detail.push({
                                             sessionId: data.session_id,
                                             accept_by: findUser.userId,
@@ -6434,7 +6446,9 @@ exports.rejectList = async (req, res, next) => {
                                             userName: findUser.firstName,
                                             room: findChatRoomId2._id
                                         })
+
                                     } else {
+
                                         rej_user_detail.push({
                                             sessionId: data.session_id,
                                             accept_by: findUser.userId,
@@ -6445,9 +6459,11 @@ exports.rejectList = async (req, res, next) => {
                                             userName: findUser.firstName,
                                             room: ""
                                         })
+
                                     }
 
                                 } else {
+
                                     rej_user_detail.push({
                                         sessionId: data.session_id,
                                         accept_by: findUser.userId,
@@ -6458,11 +6474,13 @@ exports.rejectList = async (req, res, next) => {
                                         userName: findUser.firstName,
                                         room: ""
                                     })
+
                                 }
 
                             }
                         }
                     } else {
+
                         rej_user_detail.push({
                             sessionId: data.session_id,
                             accept_by: findUser.userId,
@@ -6473,8 +6491,10 @@ exports.rejectList = async (req, res, next) => {
                             userName: findUser.firstName,
                             room: ""
                         })
+
                     }
                 } else {
+
                     rej_user_detail.push({
                         sessionId: data.session_id,
                         accept_by: findUser.userId,
@@ -6485,21 +6505,24 @@ exports.rejectList = async (req, res, next) => {
                         userName: findUser.firstName,
                         room: ""
                     })
+
                 }
 
 
             }
         }
 
-
         res.status(status.OK).json(
             new APIResponse("get reject list", "true", 200, "1", rej_user_detail)
         )
+
     } catch (error) {
-        console.log("error", error);
+
+        console.log("error:::---", error);
         res.status(status.INTERNAL_SERVER_ERROR).json(
             new APIResponse("Something Went Wrong", "false", 500, "0", error.message)
         )
+
     }
 }
 

@@ -1224,10 +1224,10 @@ exports.getAllUser = async (req, res, next) => {
         const id = await userModel.findOne({
             _id: req.params.user_id
         }).select('_id');
-        console.log("id:::", id);
+        console.log("data::---", id);
 
         if (id == null) {
-           
+
             res.status(status.NOT_FOUND).json(
                 new APIResponse("No User Found", 'false', 404, '0')
             )
@@ -1236,516 +1236,515 @@ exports.getAllUser = async (req, res, next) => {
 
             const searchName = await userModel.find({ polyDating: 0, _id: { $ne: req.params.user_id } }).maxTimeMS(10);
 
-        const reaquestedAllEmail = [];
-        searchName.map((result, index) => {
+            const reaquestedAllEmail = [];
+            searchName.map((result, index) => {
 
-            reaquestedAllEmail.push(result.email)
-        })
+                reaquestedAllEmail.push(result.email)
+            })
 
-
-        if (reaquestedAllEmail[0] == undefined) {
-            res.status(status.NOT_FOUND).json(
-                new APIResponse("No User Found", 'false', 404, '0')
-            )
-        } else {
-            const RequestedEmailExiestInUser = await requestsModel.findOne(
-                {
-                    userId: req.params.user_id,
-                    RequestedEmails: {
-                        $elemMatch: {
-                            requestedEmail: {
-                                $in: reaquestedAllEmail
-                            }
-                        }
-                    }
-                }
-            ).maxTimeMS(10)
-
-
-            if (reaquestedAllEmail && RequestedEmailExiestInUser == null) {
-                const finalData = [];
-                const responseData = [];
-                const UniqueEmail = [];
-                for (const allrequestedDataNotAcceptedRequestAndNotFriend of reaquestedAllEmail) {
-
-                    const FindUser = await userModel
-                        .aggregate([
-                            {
-                                $geoNear: {
-                                    near: {
-                                        type: "Point",
-                                        coordinates: [
-                                            parseFloat(req.query.long) || 0,
-                                            parseFloat(req.query.lat) || 0
-                                        ]
-                                    },
-                                    distanceField: "distance",
-                                    spherical: true
-                                }
-                            }
-                        ]);
-
-
-                    for (const uniqueUser of FindUser) {
-
-                        if (uniqueUser.email == allrequestedDataNotAcceptedRequestAndNotFriend) {
-                            finalData.push(uniqueUser)
-                        }
-                    }
-                }
-                const chatRoomId = [];
-                for (const getOriginalData of finalData) {
-
-                    const findAllUserWithIchat1 = await chatRoomModel.findOne({
-                        $and: [{
-                            user1: getOriginalData._id
-                        }, {
-                            user2: id._id ? id._id : null
-                        }]
-                    })
-                    const findAllUserWithIchat2 = await chatRoomModel.findOne({
-                        $and: [{
-                            user1: id._id
-                        }, {
-                            user2: getOriginalData._id
-                        }]
-                    })
-
-                    if (findAllUserWithIchat1) {
-                        chatRoomId.push(findAllUserWithIchat1._id)
-                        const km = getOriginalData.distance / 1000;
-                        const distance = km.toFixed(2) + " km";
-                        const response = {
-                            chatRoomId: chatRoomId[0],
-                            _id: getOriginalData._id,
-                            email: getOriginalData.email,
-                            firstName: getOriginalData.firstName,
-                            profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
-                            distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                            status: 3
-                        }
-
-                        UniqueEmail.push(response);
-
-                    } else if (findAllUserWithIchat2) {
-                        chatRoomId.push(findAllUserWithIchat2._id)
-                        const km = getOriginalData.distance / 1000;
-                        const distance = km.toFixed(2) + " km";
-                        const response = {
-                            chatRoomId: chatRoomId[0],
-                            _id: getOriginalData._id,
-                            email: getOriginalData.email,
-                            firstName: getOriginalData.firstName,
-                            profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
-                            distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                            status: 3
-                        }
-                        UniqueEmail.push(response);
-                    } else {
-                        const km = getOriginalData.distance / 1000;
-                        const distance = km.toFixed(2) + " km";
-                        const response = {
-                            _id: getOriginalData._id,
-                            email: getOriginalData.email,
-                            firstName: getOriginalData.firstName,
-                            profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
-                            distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                            status: 3
-                        }
-                        UniqueEmail.push(response);
-                    }
-                }
-
-                const page = parseInt(req.query.page)
-                const limit = parseInt(req.query.limit)
-                const startIndex = (page - 1) * limit;
-                const endIndex = page * limit;
-                const data = UniqueEmail.length;
-                const pageCount = Math.ceil(data / limit);
-
-                res.status(status.OK).json({
-                    "message": "show all User",
-                    "status": true,
-                    "code": 200,
-                    "statusCode": 1,
-                    "pageCount": (pageCount).toString() == (NaN).toString() ? 0 : pageCount,
-                    "data": (startIndex).toString() == (NaN) ? UniqueEmail : UniqueEmail.slice(startIndex, endIndex)
-
-                })
+            if (reaquestedAllEmail[0] == undefined) {
+                res.status(status.NOT_FOUND).json(
+                    new APIResponse("No User Found", 'false', 404, '0')
+                )
             } else {
-
-                const emailGet = [];
-                const finalData = [];
-                for (const getEmail of RequestedEmailExiestInUser.RequestedEmails) {
-                    emailGet.push(getEmail.requestedEmail)
-                }
-
-                var difference = reaquestedAllEmail.filter(x => emailGet.indexOf(x) === -1);
-
-
-                const UniqueEmail = [];
-                for (const uniqueEmail of difference) {
-                    const FindUser = await userModel
-                        .aggregate([
-                            {
-                                $geoNear: {
-                                    near: {
-                                        type: "Point",
-                                        coordinates: [
-                                            parseFloat(req.query.long) || 0,
-                                            parseFloat(req.query.lat) || 0
-                                        ]
-                                    },
-                                    distanceField: "distance",
-                                    spherical: true
+                const RequestedEmailExiestInUser = await requestsModel.findOne(
+                    {
+                        userId: req.params.user_id,
+                        RequestedEmails: {
+                            $elemMatch: {
+                                requestedEmail: {
+                                    $in: reaquestedAllEmail
                                 }
                             }
-                        ]);
-
-
-                    for (const uniqueUser of FindUser) {
-
-                        if (uniqueUser.email == uniqueEmail) {
-                            finalData.push(uniqueUser)
                         }
                     }
-
-                }
-                const chatRoomId = [];
-                for (const getOriginalData of finalData) {
-                    const findAllUserWithIchat1 = await chatRoomModel.findOne({
-                        $and: [{
-                            user1: getOriginalData._id
-                        }, {
-                            user2: id._id
-                        }]
-                    }).select("_id")
+                ).maxTimeMS(10)
 
 
-                    const findAllUserWithIchat2 = await chatRoomModel.findOne({
-                        $and: [{
-                            user1: id._id
-                        }, {
-                            user2: getOriginalData._id
-                        }]
-                    }).select("_id")
+                if (reaquestedAllEmail && RequestedEmailExiestInUser == null) {
+                    const finalData = [];
+                    const responseData = [];
+                    const UniqueEmail = [];
+                    for (const allrequestedDataNotAcceptedRequestAndNotFriend of reaquestedAllEmail) {
 
-
-
-
-                    if (findAllUserWithIchat1) {
-                        chatRoomId.push(findAllUserWithIchat1._id)
-                        const km = getOriginalData.distance / 1000;
-                        const distance = km.toFixed(2) + " km";
-                        const response = {
-                            chatRoomId: chatRoomId[0],
-                            _id: getOriginalData._id,
-                            email: getOriginalData.email,
-                            firstName: getOriginalData.firstName,
-                            profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
-                            distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                            status: 3
-                        }
-
-                        UniqueEmail.push(response);
-
-                    } else if (findAllUserWithIchat2) {
-                        chatRoomId.push(findAllUserWithIchat2._id)
-                        const km = getOriginalData.distance / 1000;
-                        const distance = km.toFixed(2) + " km";
-                        const response = {
-                            chatRoomId: chatRoomId[0],
-                            _id: getOriginalData._id,
-                            email: getOriginalData.email,
-                            firstName: getOriginalData.firstName,
-                            profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
-                            distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                            status: 3
-                        }
-
-                        UniqueEmail.push(response);
-                    } else {
-                        const km = getOriginalData.distance / 1000;
-                        const distance = km.toFixed(2) + " km";
-                        const response = {
-                            _id: getOriginalData._id,
-                            email: getOriginalData.email,
-                            firstName: getOriginalData.firstName,
-                            profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
-                            distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                            status: 3
-                        }
-
-                        UniqueEmail.push(response);
-                    }
-
-
-                }
-                const statusByEmail = [];
-                const allRequestedEmail = RequestedEmailExiestInUser.RequestedEmails
-                const requestedEmailWitchIsInuserRequeted = [];
-                allRequestedEmail.map((result, next) => {
-                    const resultEmail = result.requestedEmail
-                    requestedEmailWitchIsInuserRequeted.push(resultEmail);
-                })
-
-                const meageAllTable = await userModel.aggregate([
-                    {
-                        $geoNear: {
-                            near: {
-                                type: "Point",
-                                coordinates: [
-                                    parseFloat(req.query.long) || 0,
-                                    parseFloat(req.query.lat) || 0
-                                ]
-                            },
-                            distanceField: "distance",
-                            spherical: true
-                        }
-                    },
-                    {
-                        $match: {
-                            email: {
-                                $in: requestedEmailWitchIsInuserRequeted
-                            }
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: 'posts',
-                            localField: 'email',
-                            foreignField: 'email',
-                            as: 'req_data'
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: 'requests',
-                            let: {
-                                userId: mongoose.Types.ObjectId(req.params.user_id),
-                                email: "$email"
-                            },
-                            pipeline: [
+                        const FindUser = await userModel
+                            .aggregate([
                                 {
-                                    $match: {
-                                        $expr: {
-                                            $and: [
-                                                {
-                                                    $eq: [
-                                                        "$userId", "$$userId"
-                                                    ]
-                                                },
-                                                {
-                                                    $in:
-                                                        [
-                                                            "$$email", "$RequestedEmails.requestedEmail"
-                                                        ]
-                                                }
+                                    $geoNear: {
+                                        near: {
+                                            type: "Point",
+                                            coordinates: [
+                                                parseFloat(req.query.long) || 0,
+                                                parseFloat(req.query.lat) || 0
                                             ]
-                                        }
+                                        },
+                                        distanceField: "distance",
+                                        spherical: true
                                     }
-                                },
-                            ],
-                            as: 'form_data'
-                        }
-                    },
-                    {
-                        $project: {
-                            polyDating: "$polyDating",
-                            HowDoYouPoly: "$HowDoYouPoly",
-                            loveToGive: "$loveToGive",
-                            polyRelationship: "$polyRelationship",
-                            firstName: "$firstName",
-                            email: "$email",
-                            firstName: "$firstName",
-                            relationshipSatus: "$relationshipSatus",
-                            Bio: "$Bio",
-                            photo: "$photo",
-                            hopingToFind: "$hopingToFind",
-                            jobTitle: "$jobTitle",
-                            wantChildren: "$wantChildren",
-                            distance: "$distance",
-                            posts: "$req_data",
-                            result: "$form_data.RequestedEmails",
-                        }
-                    }])
+                                }
+                            ]);
 
 
+                        for (const uniqueUser of FindUser) {
 
-                const finalExistUser = [];
-
-
-                const emailDataDetail = meageAllTable;
-                for (const DataDetail of emailDataDetail) {
-
-
-                    for (const reqEmail of reaquestedAllEmail) {
-                        if (DataDetail.email == reqEmail) {
-                            finalExistUser.push(DataDetail)
+                            if (uniqueUser.email == allrequestedDataNotAcceptedRequestAndNotFriend) {
+                                finalData.push(uniqueUser)
+                            }
                         }
                     }
-                }
+                    const chatRoomId = [];
+                    for (const getOriginalData of finalData) {
 
-                for (const emailData of finalExistUser[0].result) {
+                        const findAllUserWithIchat1 = await chatRoomModel.findOne({
+                            $and: [{
+                                user1: getOriginalData._id
+                            }, {
+                                user2: id._id ? id._id : null
+                            }]
+                        })
+                        const findAllUserWithIchat2 = await chatRoomModel.findOne({
+                            $and: [{
+                                user1: id._id
+                            }, {
+                                user2: getOriginalData._id
+                            }]
+                        })
 
-                    for (const requestEmail of emailData) {
+                        if (findAllUserWithIchat1) {
+                            chatRoomId.push(findAllUserWithIchat1._id)
+                            const km = getOriginalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const response = {
+                                chatRoomId: chatRoomId[0],
+                                _id: getOriginalData._id,
+                                email: getOriginalData.email,
+                                firstName: getOriginalData.firstName,
+                                profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: 3
+                            }
 
-                        for (const meageAllTableEmail of finalExistUser) {
+                            UniqueEmail.push(response);
 
-                            if (requestEmail.requestedEmail == meageAllTableEmail.email) {
+                        } else if (findAllUserWithIchat2) {
+                            chatRoomId.push(findAllUserWithIchat2._id)
+                            const km = getOriginalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const response = {
+                                chatRoomId: chatRoomId[0],
+                                _id: getOriginalData._id,
+                                email: getOriginalData.email,
+                                firstName: getOriginalData.firstName,
+                                profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: 3
+                            }
+                            UniqueEmail.push(response);
+                        } else {
+                            const km = getOriginalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const response = {
+                                _id: getOriginalData._id,
+                                email: getOriginalData.email,
+                                firstName: getOriginalData.firstName,
+                                profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: 3
+                            }
+                            UniqueEmail.push(response);
+                        }
+                    }
 
-                                if (requestEmail.accepted == 1) {
-                                    var status1 = {
-                                        status: requestEmail.accepted,
-                                        email: requestEmail.requestedEmail
+                    const page = parseInt(req.query.page)
+                    const limit = parseInt(req.query.limit)
+                    const startIndex = (page - 1) * limit;
+                    const endIndex = page * limit;
+                    const data = UniqueEmail.length;
+                    const pageCount = Math.ceil(data / limit);
+
+                    res.status(status.OK).json({
+                        "message": "show all User",
+                        "status": true,
+                        "code": 200,
+                        "statusCode": 1,
+                        "pageCount": (pageCount).toString() == (NaN).toString() ? 0 : pageCount,
+                        "data": (startIndex).toString() == (NaN) ? UniqueEmail : UniqueEmail.slice(startIndex, endIndex)
+
+                    })
+                } else {
+
+                    const emailGet = [];
+                    const finalData = [];
+                    for (const getEmail of RequestedEmailExiestInUser.RequestedEmails) {
+                        emailGet.push(getEmail.requestedEmail)
+                    }
+
+                    var difference = reaquestedAllEmail.filter(x => emailGet.indexOf(x) === -1);
+
+
+                    const UniqueEmail = [];
+                    for (const uniqueEmail of difference) {
+                        const FindUser = await userModel
+                            .aggregate([
+                                {
+                                    $geoNear: {
+                                        near: {
+                                            type: "Point",
+                                            coordinates: [
+                                                parseFloat(req.query.long) || 0,
+                                                parseFloat(req.query.lat) || 0
+                                            ]
+                                        },
+                                        distanceField: "distance",
+                                        spherical: true
                                     }
-                                    statusByEmail.push(status1)
                                 }
-                                if (requestEmail.accepted == 4) {
-                                    var status2 = {
-                                        status: requestEmail.accepted,
-                                        email: requestEmail.requestedEmail,
-                                    }
-                                    statusByEmail.push(status2)
-                                } else {
+                            ]);
 
-                                    var status3 = {
-                                        status: requestEmail.accepted,
-                                        email: requestEmail.requestedEmail
+
+                        for (const uniqueUser of FindUser) {
+
+                            if (uniqueUser.email == uniqueEmail) {
+                                finalData.push(uniqueUser)
+                            }
+                        }
+
+                    }
+                    const chatRoomId = [];
+                    for (const getOriginalData of finalData) {
+                        const findAllUserWithIchat1 = await chatRoomModel.findOne({
+                            $and: [{
+                                user1: getOriginalData._id
+                            }, {
+                                user2: id._id
+                            }]
+                        }).select("_id")
+
+
+                        const findAllUserWithIchat2 = await chatRoomModel.findOne({
+                            $and: [{
+                                user1: id._id
+                            }, {
+                                user2: getOriginalData._id
+                            }]
+                        }).select("_id")
+
+
+
+
+                        if (findAllUserWithIchat1) {
+                            chatRoomId.push(findAllUserWithIchat1._id)
+                            const km = getOriginalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const response = {
+                                chatRoomId: chatRoomId[0],
+                                _id: getOriginalData._id,
+                                email: getOriginalData.email,
+                                firstName: getOriginalData.firstName,
+                                profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: 3
+                            }
+
+                            UniqueEmail.push(response);
+
+                        } else if (findAllUserWithIchat2) {
+                            chatRoomId.push(findAllUserWithIchat2._id)
+                            const km = getOriginalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const response = {
+                                chatRoomId: chatRoomId[0],
+                                _id: getOriginalData._id,
+                                email: getOriginalData.email,
+                                firstName: getOriginalData.firstName,
+                                profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: 3
+                            }
+
+                            UniqueEmail.push(response);
+                        } else {
+                            const km = getOriginalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const response = {
+                                _id: getOriginalData._id,
+                                email: getOriginalData.email,
+                                firstName: getOriginalData.firstName,
+                                profile: getOriginalData.photo[0] ? getOriginalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: 3
+                            }
+
+                            UniqueEmail.push(response);
+                        }
+
+
+                    }
+                    const statusByEmail = [];
+                    const allRequestedEmail = RequestedEmailExiestInUser.RequestedEmails
+                    const requestedEmailWitchIsInuserRequeted = [];
+                    allRequestedEmail.map((result, next) => {
+                        const resultEmail = result.requestedEmail
+                        requestedEmailWitchIsInuserRequeted.push(resultEmail);
+                    })
+
+                    const meageAllTable = await userModel.aggregate([
+                        {
+                            $geoNear: {
+                                near: {
+                                    type: "Point",
+                                    coordinates: [
+                                        parseFloat(req.query.long) || 0,
+                                        parseFloat(req.query.lat) || 0
+                                    ]
+                                },
+                                distanceField: "distance",
+                                spherical: true
+                            }
+                        },
+                        {
+                            $match: {
+                                email: {
+                                    $in: requestedEmailWitchIsInuserRequeted
+                                }
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: 'posts',
+                                localField: 'email',
+                                foreignField: 'email',
+                                as: 'req_data'
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: 'requests',
+                                let: {
+                                    userId: mongoose.Types.ObjectId(req.params.user_id),
+                                    email: "$email"
+                                },
+                                pipeline: [
+                                    {
+                                        $match: {
+                                            $expr: {
+                                                $and: [
+                                                    {
+                                                        $eq: [
+                                                            "$userId", "$$userId"
+                                                        ]
+                                                    },
+                                                    {
+                                                        $in:
+                                                            [
+                                                                "$$email", "$RequestedEmails.requestedEmail"
+                                                            ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                ],
+                                as: 'form_data'
+                            }
+                        },
+                        {
+                            $project: {
+                                polyDating: "$polyDating",
+                                HowDoYouPoly: "$HowDoYouPoly",
+                                loveToGive: "$loveToGive",
+                                polyRelationship: "$polyRelationship",
+                                firstName: "$firstName",
+                                email: "$email",
+                                firstName: "$firstName",
+                                relationshipSatus: "$relationshipSatus",
+                                Bio: "$Bio",
+                                photo: "$photo",
+                                hopingToFind: "$hopingToFind",
+                                jobTitle: "$jobTitle",
+                                wantChildren: "$wantChildren",
+                                distance: "$distance",
+                                posts: "$req_data",
+                                result: "$form_data.RequestedEmails",
+                            }
+                        }])
+
+
+
+                    const finalExistUser = [];
+
+
+                    const emailDataDetail = meageAllTable;
+                    for (const DataDetail of emailDataDetail) {
+
+
+                        for (const reqEmail of reaquestedAllEmail) {
+                            if (DataDetail.email == reqEmail) {
+                                finalExistUser.push(DataDetail)
+                            }
+                        }
+                    }
+
+                    for (const emailData of finalExistUser[0].result) {
+
+                        for (const requestEmail of emailData) {
+
+                            for (const meageAllTableEmail of finalExistUser) {
+
+                                if (requestEmail.requestedEmail == meageAllTableEmail.email) {
+
+                                    if (requestEmail.accepted == 1) {
+                                        var status1 = {
+                                            status: requestEmail.accepted,
+                                            email: requestEmail.requestedEmail
+                                        }
+                                        statusByEmail.push(status1)
                                     }
-                                    statusByEmail.push(status3)
+                                    if (requestEmail.accepted == 4) {
+                                        var status2 = {
+                                            status: requestEmail.accepted,
+                                            email: requestEmail.requestedEmail,
+                                        }
+                                        statusByEmail.push(status2)
+                                    } else {
+
+                                        var status3 = {
+                                            status: requestEmail.accepted,
+                                            email: requestEmail.requestedEmail
+                                        }
+                                        statusByEmail.push(status3)
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                const final_data = [];
+                    const final_data = [];
 
-                const finalStatus = []
+                    const finalStatus = []
 
-                const uniqueObjArray = [...new Map(statusByEmail.map((item) => [item["email"], item])).values()];
-                for (const [key, finalData] of meageAllTable.entries()) {
-                    for (const [key, final1Data] of uniqueObjArray.entries()) {
-                        if (finalData.email === final1Data.email) {
+                    const uniqueObjArray = [...new Map(statusByEmail.map((item) => [item["email"], item])).values()];
+                    for (const [key, finalData] of meageAllTable.entries()) {
+                        for (const [key, final1Data] of uniqueObjArray.entries()) {
+                            if (finalData.email === final1Data.email) {
 
-                            finalStatus.push({ status: final1Data.status })
+                                finalStatus.push({ status: final1Data.status })
+                            }
                         }
                     }
-                }
 
 
-                for (const [key, finalData] of finalExistUser.entries()) {
+                    for (const [key, finalData] of finalExistUser.entries()) {
 
-                    const km = finalData.distance / 1000;
-                    const distance = km.toFixed(2) + " km";
-                    const response = {
-                        _id: finalData._id,
-                        polyDating: finalData.polyDating,
-                        HowDoYouPoly: finalData.HowDoYouPoly,
-                        loveToGive: finalData.loveToGive,
-                        polyRelationship: finalData.polyRelationship,
-                        firstName: finalData.firstName,
-                        email: finalData.email,
-                        relationshipSatus: finalData.relationshipSatus,
-                        Bio: finalData.Bio,
-                        profile: finalData.photo[0] ? finalData.photo[0].res : "",
-                        hopingToFind: finalData.hopingToFind,
-                        jobTitle: finalData.jobTitle,
-                        wantChildren: finalData.wantChildren,
-                        posts: finalData.posts,
-                        distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                        status: finalStatus[key].status
-                    }
-
-
-
-                    const chatRoomId = [];
-                    const findAllUserWithIchat1 = await chatRoomModel.findOne({
-                        $and: [{
-                            user1: finalData._id
-                        }, {
-                            user2: id._id
-                        }]
-                    }).select("_id")
-
-                    const findAllUserWithIchat2 = await chatRoomModel.findOne({
-                        $and: [{
-                            user1: id._id
-                        }, {
-                            user2: finalData._id
-                        }]
-                    }).select("_id")
-                    if (findAllUserWithIchat1) {
-                        chatRoomId.push(findAllUserWithIchat1._id)
                         const km = finalData.distance / 1000;
                         const distance = km.toFixed(2) + " km";
-                        const getDetail = {
-                            chatRoomId: chatRoomId[0],
+                        const response = {
                             _id: finalData._id,
+                            polyDating: finalData.polyDating,
+                            HowDoYouPoly: finalData.HowDoYouPoly,
+                            loveToGive: finalData.loveToGive,
+                            polyRelationship: finalData.polyRelationship,
                             firstName: finalData.firstName,
                             email: finalData.email,
+                            relationshipSatus: finalData.relationshipSatus,
+                            Bio: finalData.Bio,
                             profile: finalData.photo[0] ? finalData.photo[0].res : "",
+                            hopingToFind: finalData.hopingToFind,
+                            jobTitle: finalData.jobTitle,
+                            wantChildren: finalData.wantChildren,
+                            posts: finalData.posts,
                             distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
                             status: finalStatus[key].status
                         }
 
-                        final_data.push(getDetail);
-                    } else if (findAllUserWithIchat2) {
 
 
-                        chatRoomId.push(findAllUserWithIchat2._id)
-                        const km = finalData.distance / 1000;
-                        const distance = km.toFixed(2) + " km";
-                        const getDetail = {
-                            chatRoomId: chatRoomId[0],
-                            _id: finalData._id,
-                            firstName: finalData.firstName,
-                            email: finalData.email,
-                            profile: finalData.photo[0] ? finalData.photo[0].res : "",
-                            distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                            status: finalStatus[key].status
+                        const chatRoomId = [];
+                        const findAllUserWithIchat1 = await chatRoomModel.findOne({
+                            $and: [{
+                                user1: finalData._id
+                            }, {
+                                user2: id._id
+                            }]
+                        }).select("_id")
+
+                        const findAllUserWithIchat2 = await chatRoomModel.findOne({
+                            $and: [{
+                                user1: id._id
+                            }, {
+                                user2: finalData._id
+                            }]
+                        }).select("_id")
+                        if (findAllUserWithIchat1) {
+                            chatRoomId.push(findAllUserWithIchat1._id)
+                            const km = finalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const getDetail = {
+                                chatRoomId: chatRoomId[0],
+                                _id: finalData._id,
+                                firstName: finalData.firstName,
+                                email: finalData.email,
+                                profile: finalData.photo[0] ? finalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: finalStatus[key].status
+                            }
+
+                            final_data.push(getDetail);
+                        } else if (findAllUserWithIchat2) {
+
+
+                            chatRoomId.push(findAllUserWithIchat2._id)
+                            const km = finalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const getDetail = {
+                                chatRoomId: chatRoomId[0],
+                                _id: finalData._id,
+                                firstName: finalData.firstName,
+                                email: finalData.email,
+                                profile: finalData.photo[0] ? finalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: finalStatus[key].status
+                            }
+
+                            final_data.push(getDetail);
+                        } else {
+                            const km = finalData.distance / 1000;
+                            const distance = km.toFixed(2) + " km";
+                            const getDetail = {
+                                chatRoomId: chatRoomId[0],
+                                _id: finalData._id,
+                                firstName: finalData.firstName,
+                                email: finalData.email,
+                                profile: finalData.photo[0] ? finalData.photo[0].res : "",
+                                distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
+                                status: finalStatus[key].status
+                            }
+
+                            final_data.push(getDetail);
                         }
-
-                        final_data.push(getDetail);
-                    } else {
-                        const km = finalData.distance / 1000;
-                        const distance = km.toFixed(2) + " km";
-                        const getDetail = {
-                            chatRoomId: chatRoomId[0],
-                            _id: finalData._id,
-                            firstName: finalData.firstName,
-                            email: finalData.email,
-                            profile: finalData.photo[0] ? finalData.photo[0].res : "",
-                            distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
-                            status: finalStatus[key].status
-                        }
-
-                        final_data.push(getDetail);
                     }
+
+
+                    const final_response = [...final_data, ...UniqueEmail]
+
+                    // let uniqueObjArray = [...new Map(final_data.map((item) => [item["details"], item])).values()];
+
+                    const page = parseInt(req.query.page)
+                    const limit = parseInt(req.query.limit)
+                    const startIndex = (page - 1) * limit;
+                    const endIndex = page * limit;
+                    const data = final_response.length;
+                    const pageCount = Math.ceil(data / limit);
+                    res.status(status.OK).json({
+                        "message": "show all record searchwise",
+                        "status": true,
+                        "code": 201,
+                        "statusCode": 1,
+                        "pageCount": (pageCount).toString() == (NaN).toString() ? 0 : pageCount,
+                        "data": (startIndex).toString() == (NaN) ? final_response : final_response.slice(startIndex, endIndex)
+                    })
                 }
-
-
-                const final_response = [...final_data, ...UniqueEmail]
-
-                // let uniqueObjArray = [...new Map(final_data.map((item) => [item["details"], item])).values()];
-
-                const page = parseInt(req.query.page)
-                const limit = parseInt(req.query.limit)
-                const startIndex = (page - 1) * limit;
-                const endIndex = page * limit;
-                const data = final_response.length;
-                const pageCount = Math.ceil(data / limit);
-                res.status(status.OK).json({
-                    "message": "show all record searchwise",
-                    "status": true,
-                    "code": 201,
-                    "statusCode": 1,
-                    "pageCount": (pageCount).toString() == (NaN).toString() ? 0 : pageCount,
-                    "data": (startIndex).toString() == (NaN) ? final_response : final_response.slice(startIndex, endIndex)
-                })
             }
-        }
 
         }
 
@@ -6098,3 +6097,56 @@ exports.deleteAccount = async (req, res, next) => {
     }
 }
 
+exports.imageUpload = async (req, res) => {
+    try {
+
+        const cloudinaryImageUploadMethod = async file => {
+            return new Promise(resolve => {
+                cloudinary.uploader.upload(file, (err, res) => {
+                    if (err) return res.send("upload image error")
+                    resolve({
+                        res: res.secure_url
+                    })
+                }
+                )
+            })
+        }
+
+        const profileFile = req.files.profile;
+        const urls = [];
+        for (const fileForProfilePic of profileFile) {
+            const { path } = fileForProfilePic
+            const newPath = await cloudinaryImageUploadMethod(path)
+            urls.push(newPath)
+        }
+
+        const files = req.files.photo
+        for (const file of files) {
+            const { path } = file
+
+            const newPath = await cloudinaryImageUploadMethod(path)
+            urls.push(newPath)
+        }
+
+        const uploadData = await userModel.updateOne(
+            {
+                _id: req.params.id
+            },
+            {
+                $set: {
+                    photo: urls
+                }
+            }
+        )
+
+        res.status(status.OK).json(
+            new APIResponse("Image Uploaded Succesfully", true, 200, 1, urls)
+        )
+
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(status.INTERNAL_SERVER_ERROR).json(
+            new APIResponse("Something Went Wrong", "false", 500, "0", error.message)
+        )
+    }
+}
