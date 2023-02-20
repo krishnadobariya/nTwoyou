@@ -51,11 +51,11 @@ const userSchema = mongoose.Schema({
     },
     photo: {
         type: Array,
-        require: true
+        // require: true
     },
     profile : {
         type: Array,
-        require: true
+        // require: true
     },
     hopingToFind: {
         type: String,

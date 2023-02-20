@@ -20,33 +20,33 @@ const { url } = require("../utils/cloudinary.utils");
 exports.userRegister = async (req, res, next) => {
     try {
 
-        const cloudinaryImageUploadMethod = async file => {
-            return new Promise(resolve => {
-                cloudinary.uploader.upload(file, (err, res) => {
-                    if (err) return res.send("upload image error")
-                    resolve({
-                        res: res.secure_url
-                    })
-                }
-                )
-            })
-        }
+        // const cloudinaryImageUploadMethod = async file => {
+        //     return new Promise(resolve => {
+        //         cloudinary.uploader.upload(file, (err, res) => {
+        //             if (err) return res.send("upload image error")
+        //             resolve({
+        //                 res: res.secure_url
+        //             })
+        //         }
+        //         )
+        //     })
+        // }
 
-        const profileFile = req.files.profile;
+        // const profileFile = req.files.profile;
         const urls = [];
-        for (const fileForProfilePic of profileFile) {
-            const { path } = fileForProfilePic
-            const newPath = await cloudinaryImageUploadMethod(path)
-            urls.push(newPath)
-        }
+        // for (const fileForProfilePic of profileFile) {
+        //     const { path } = fileForProfilePic
+        //     const newPath = await cloudinaryImageUploadMethod(path)
+        //     urls.push(newPath)
+        // }
 
-        const files = req.files.photo
-        for (const file of files) {
-            const { path } = file
+        // const files = req.files.photo
+        // for (const file of files) {
+        //     const { path } = file
 
-            const newPath = await cloudinaryImageUploadMethod(path)
-            urls.push(newPath)
-        }
+        //     const newPath = await cloudinaryImageUploadMethod(path)
+        //     urls.push(newPath)
+        // }
 
         const findEmail = await userModel.findOne({ email: req.body.email });
         if (findEmail) {
