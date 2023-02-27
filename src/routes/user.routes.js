@@ -33,12 +33,13 @@ router.get('/getUser/:user_id', userController.getAllUser);
 router.get('/notification/:user_id', userController.getAllNotification);
 router.post('/forgetPassword/:email', userController.forGetPassword);
 router.get('/existMailOrNot/:email/:type', userController.checkMailExiesOrNot);
+router.get("/mobileExistOrNot/:countryCode/:phoneNumber", userController.mobileExistOrNot)
 router.get('/unfriend/:user_id/:unfriend_user_id', userController.unFriend);
 router.put('/notification/read/:user_id', userController.readNotification);
 router.put('/logout/:user_id', userController.logout);
 router.delete("/delete/:id", userController.deleteAccount)
 router.post("/upload-image/:id", 
-upload.fields([{
+upload.fields([{ 
     name: "photo",
     maxCount: 10
 }, {

@@ -5938,6 +5938,35 @@ exports.checkMailExiesOrNot = async (req, res) => {
     }
 }
 
+exports.
+mobileExistOrNot = async (req, res) => {
+    try {
+
+        let mobile = req.params.phoneNumber;
+        let code = req.params.countryCode;
+
+        const findUser = await userModel.findOne({
+            phoneNumber: mobile,
+            countryCode: code
+        });
+
+        if (findUser == null) {
+            res.status(status.OK).json(
+                new APIResponse("Phone Number Is Not Exist", "true", 200, "1")
+            );
+        } else {
+            res.status(status.OK).json(
+                new APIResponse("Phone NUmber Is Exist", "true", 200, "1")
+            );
+        }
+
+    } catch (error) {
+        res.status(status.INTERNAL_SERVER_ERROR).json(
+            new APIResponse("Something Went Wrong", "false", 500, error.message)
+        );
+    }
+}
+
 exports.unFriend = async (req, res) => {
     try {
 

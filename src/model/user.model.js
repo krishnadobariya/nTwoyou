@@ -17,13 +17,7 @@ const userSchema = mongoose.Schema({
     },
     email: {
         type: String,
-        require: true,
-        unique: true,
-        validate: {
-            validator: validator.isEmail,
-            message: '{VALUE} is not a valid email',
-            isAsync: false
-        }
+        require: true
     },
     firstName: {
         type: String,
@@ -53,7 +47,7 @@ const userSchema = mongoose.Schema({
         type: Array,
         // require: true
     },
-    profile : {
+    profile: {
         type: Array,
         // require: true
     },
