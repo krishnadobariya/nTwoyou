@@ -4403,7 +4403,8 @@ exports.uploadVideos = async (req, res, next) => {
         if (userFindForVideos) {
 
             const urls = [];
-            const files = req.files.upload;
+            const files = req.files;
+            console.log("data:---------",req.files);
 
             for (const file of files) {
                 const { path } = file
