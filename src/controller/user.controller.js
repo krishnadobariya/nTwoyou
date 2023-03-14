@@ -1221,10 +1221,12 @@ exports.searchFriend = async (req, res, next) => {
 exports.getAllUser = async (req, res, next) => {
     try {
 
+        console.log("Time::---::---", new Date().getSeconds());
         const id = await userModel.findOne({
             _id: req.params.user_id
         }).select('_id');
         console.log("data::---", id);
+        console.log("id::---", id);
 
         if (id == null) {
 
@@ -1235,18 +1237,22 @@ exports.getAllUser = async (req, res, next) => {
         } else {
 
             const searchName = await userModel.find({ polyDating: 0, _id: { $ne: req.params.user_id } }).maxTimeMS(10);
+            console.log("searchName::---", searchName);
 
             const reaquestedAllEmail = [];
             searchName.map((result, index) => {
-
                 reaquestedAllEmail.push(result.email)
             })
+            console.log("reaquestedAllEmail::----", reaquestedAllEmail);
 
             if (reaquestedAllEmail[0] == undefined) {
+
                 res.status(status.NOT_FOUND).json(
                     new APIResponse("No User Found", 'false', 404, '0')
-                )
+                );
+
             } else {
+
                 const RequestedEmailExiestInUser = await requestsModel.findOne(
                     {
                         userId: req.params.user_id,
@@ -1258,13 +1264,16 @@ exports.getAllUser = async (req, res, next) => {
                             }
                         }
                     }
-                ).maxTimeMS(10)
+                ).maxTimeMS(10);
+                console.log("RequestedEmailExiestInUser:::---", RequestedEmailExiestInUser);
 
 
                 if (reaquestedAllEmail && RequestedEmailExiestInUser == null) {
+
                     const finalData = [];
                     const responseData = [];
                     const UniqueEmail = [];
+
                     for (const allrequestedDataNotAcceptedRequestAndNotFriend of reaquestedAllEmail) {
 
                         const FindUser = await userModel
@@ -1283,6 +1292,7 @@ exports.getAllUser = async (req, res, next) => {
                                     }
                                 }
                             ]);
+                        console.log("FindUser:::---", FindUser);
 
 
                         for (const uniqueUser of FindUser) {
@@ -1290,6 +1300,7 @@ exports.getAllUser = async (req, res, next) => {
                             if (uniqueUser.email == allrequestedDataNotAcceptedRequestAndNotFriend) {
                                 finalData.push(uniqueUser)
                             }
+
                         }
                     }
                     const chatRoomId = [];
@@ -1354,7 +1365,8 @@ exports.getAllUser = async (req, res, next) => {
                             UniqueEmail.push(response);
                         }
                     }
-
+                    console.log("chatRoomId:::---", chatRoomId);
+                    console.log("Time::---2----:---::---", new Date().getSeconds());
                     const page = parseInt(req.query.page)
                     const limit = parseInt(req.query.limit)
                     const startIndex = (page - 1) * limit;
@@ -1373,6 +1385,7 @@ exports.getAllUser = async (req, res, next) => {
                     })
                 } else {
 
+
                     const emailGet = [];
                     const finalData = [];
                     for (const getEmail of RequestedEmailExiestInUser.RequestedEmails) {
@@ -1381,7 +1394,7 @@ exports.getAllUser = async (req, res, next) => {
 
                     var difference = reaquestedAllEmail.filter(x => emailGet.indexOf(x) === -1);
 
-
+                    console.log("Time::---3----:---::---", new Date().getSeconds());
                     const UniqueEmail = [];
                     for (const uniqueEmail of difference) {
                         const FindUser = await userModel
@@ -1447,7 +1460,7 @@ exports.getAllUser = async (req, res, next) => {
                             }
 
                             UniqueEmail.push(response);
-
+                            console.log("Time::---4----:---::---", new Date().getSeconds());
                         } else if (findAllUserWithIchat2) {
                             chatRoomId.push(findAllUserWithIchat2._id)
                             const km = getOriginalData.distance / 1000;
@@ -1487,7 +1500,7 @@ exports.getAllUser = async (req, res, next) => {
                         const resultEmail = result.requestedEmail
                         requestedEmailWitchIsInuserRequeted.push(resultEmail);
                     })
-
+                    console.log("Time::---5----:---::---", new Date().getSeconds());
                     const meageAllTable = await userModel.aggregate([
                         {
                             $geoNear: {
@@ -1568,12 +1581,12 @@ exports.getAllUser = async (req, res, next) => {
                                 result: "$form_data.RequestedEmails",
                             }
                         }])
-
+                    console.log("meageAllTable:::----", meageAllTable);
 
 
                     const finalExistUser = [];
 
-
+                    console.log("Time::---6----:---::---", new Date().getSeconds());
                     const emailDataDetail = meageAllTable;
                     for (const DataDetail of emailDataDetail) {
 
@@ -1666,7 +1679,7 @@ exports.getAllUser = async (req, res, next) => {
                             }, {
                                 user2: id._id
                             }]
-                        }).select("_id")
+                        }).select("_id");
 
                         const findAllUserWithIchat2 = await chatRoomModel.findOne({
                             $and: [{
@@ -1674,8 +1687,13 @@ exports.getAllUser = async (req, res, next) => {
                             }, {
                                 user2: finalData._id
                             }]
-                        }).select("_id")
+                        }).select("_id");
+
+                        console.log("findAllUserWithIchat1:::", findAllUserWithIchat1);
+                        console.log("findAllUserWithIchat2:::", findAllUserWithIchat2);
+
                         if (findAllUserWithIchat1) {
+
                             chatRoomId.push(findAllUserWithIchat1._id)
                             const km = finalData.distance / 1000;
                             const distance = km.toFixed(2) + " km";
@@ -1688,10 +1706,9 @@ exports.getAllUser = async (req, res, next) => {
                                 distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
                                 status: finalStatus[key].status
                             }
-
                             final_data.push(getDetail);
-                        } else if (findAllUserWithIchat2) {
 
+                        } else if (findAllUserWithIchat2) {
 
                             chatRoomId.push(findAllUserWithIchat2._id)
                             const km = finalData.distance / 1000;
@@ -1705,9 +1722,10 @@ exports.getAllUser = async (req, res, next) => {
                                 distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
                                 status: finalStatus[key].status
                             }
-
                             final_data.push(getDetail);
+
                         } else {
+
                             const km = finalData.distance / 1000;
                             const distance = km.toFixed(2) + " km";
                             const getDetail = {
@@ -1719,13 +1737,13 @@ exports.getAllUser = async (req, res, next) => {
                                 distance: (req.query.long && req.query.lat) == undefined ? "no distance found" : distance,
                                 status: finalStatus[key].status
                             }
-
                             final_data.push(getDetail);
+
                         }
                     }
 
 
-                    const final_response = [...final_data, ...UniqueEmail]
+                    const final_response = [...final_data, ...UniqueEmail];
 
                     // let uniqueObjArray = [...new Map(final_data.map((item) => [item["details"], item])).values()];
 
@@ -5939,33 +5957,33 @@ exports.checkMailExiesOrNot = async (req, res) => {
 }
 
 exports.
-mobileExistOrNot = async (req, res) => {
-    try {
+    mobileExistOrNot = async (req, res) => {
+        try {
 
-        let mobile = req.params.phoneNumber;
-        let code = req.params.countryCode;
+            let mobile = req.params.phoneNumber;
+            let code = req.params.countryCode;
 
-        const findUser = await userModel.findOne({
-            phoneNumber: mobile,
-            countryCode: code
-        });
+            const findUser = await userModel.findOne({
+                phoneNumber: mobile,
+                countryCode: code
+            });
 
-        if (findUser == null) {
-            res.status(status.OK).json(
-                new APIResponse("Phone Number Is Not Exist", "true", 200, "1")
-            );
-        } else {
-            res.status(status.OK).json(
-                new APIResponse("Phone NUmber Is Exist", "true", 200, "1")
+            if (findUser == null) {
+                res.status(status.OK).json(
+                    new APIResponse("Phone Number Is Not Exist", "true", 200, "1")
+                );
+            } else {
+                res.status(status.OK).json(
+                    new APIResponse("Phone NUmber Is Exist", "true", 200, "1")
+                );
+            }
+
+        } catch (error) {
+            res.status(status.INTERNAL_SERVER_ERROR).json(
+                new APIResponse("Something Went Wrong", "false", 500, error.message)
             );
         }
-
-    } catch (error) {
-        res.status(status.INTERNAL_SERVER_ERROR).json(
-            new APIResponse("Something Went Wrong", "false", 500, error.message)
-        );
     }
-}
 
 exports.unFriend = async (req, res) => {
     try {
