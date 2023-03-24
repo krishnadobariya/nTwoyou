@@ -142,7 +142,7 @@ const userSchema = mongoose.Schema({
             require: true
         },
         height: {
-            type: Number,
+            type: String,
             require: true
         },
         smoking: {
