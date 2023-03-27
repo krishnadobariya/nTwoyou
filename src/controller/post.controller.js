@@ -19,8 +19,8 @@ exports.addPostVideo = async (req, res, next) => {
     try {
         const cloudinaryImageUploadMethod = async file => {
             return new Promise(resolve => {
-                cloudinary.uploader.upload(file, { resource_type: "video" }, (err, res) => {
-                    if (err) return res.status(500).send("upload image error")
+                cloudinary.uploader.upload(file, { resource_type: "auto" }, (err, res) => {
+                    if (err) return err
                     resolve({
                         res: res.secure_url
                     })
@@ -36,7 +36,7 @@ exports.addPostVideo = async (req, res, next) => {
 
             if (!checkInPost) {
                 const urls = [];
-                const files = req.files.posts;
+                const files = req.files;
 
                 for (const file of files) {
                     const { path } = file

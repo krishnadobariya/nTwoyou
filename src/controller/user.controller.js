@@ -5956,8 +5956,7 @@ exports.checkMailExiesOrNot = async (req, res) => {
     }
 }
 
-exports.
-    mobileExistOrNot = async (req, res) => {
+exports.mobileExistOrNot = async (req, res) => {
         try {
 
             let mobile = req.params.phoneNumber;

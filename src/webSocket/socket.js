@@ -570,7 +570,6 @@ function socket(io) {
             }
         })
 
-
         socket.on("createGroupRoom", async (arg) => {
 
             const user1 = await userModel.findOne({ _id: arg.user1, polyDating: 1 });
@@ -3272,6 +3271,7 @@ function socket(io) {
 
 
         })
+
         socket.on("raiseHandAccepted", async (arg) => {
 
             const findUser = await sessionModel.findOne({
