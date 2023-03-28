@@ -2054,18 +2054,16 @@ function socket(io) {
                         const p3 = findIdInSession.participants[0].participants_3 == null ? "" : findIdInSession.participants[0].participants_3
 
                         const findUser = await requestModel.findOne({
-                            userId : arg.create_session_user
-                         })
+                            userId: arg.create_session_user
+                        })
 
-                         for (const allRequestedEmail of findUser.RequestedEmails) {
+                        for (const allRequestedEmail of findUser.RequestedEmails) {
 
                             if (((allRequestedEmail.userId).toString() != (p1).toString()) && ((allRequestedEmail.userId).toString() != (p2).toString()) && ((allRequestedEmail.userId).toString() != (p3).toString())) {
                                 allRequestedEmails.push(allRequestedEmail.userId)
                             }
-        
-                        }
-        
 
+                        }
 
                         const invitedUsers = [];
                         if (p1 != null) {
@@ -2555,59 +2553,47 @@ function socket(io) {
                         const findCreateSessionUser = await userModel.findOne({
                             _id: findIdInSession.participants[0].participants_3
                         })
-                        if (findUser.fcm_token) {
-                            // const title = findCreateSessionUser.firstName;
-                            // const body = `session is joing by ${findCreateSessionUser.firstName}`;
 
-                            // const text = "join session";
-                            // const sendBy = (findCreateSessionUser._id).toString();
-                            // const registrationToken = findUser.fcm_token
-                            // Notification.sendPushNotificationFCM(
-                            //     registrationToken,
-                            //     title,
-                            //     body,
-                            //     text,
-                            //     sendBy,
-                            //     true
-                            // );
-                        }
+                        if (findCreateSessionUser != null) {
 
-
-                        const findInNotification = await notificationModel.findOne({
-                            userId: notification
-                        })
-
-                        if (findInNotification) {
-
-                            await notificationModel.updateOne({
+                            const findInNotification = await notificationModel.findOne({
                                 userId: notification
-                            }, {
-                                $push: {
+                            })
+
+                            if (findInNotification) {
+
+                                await notificationModel.updateOne({
+                                    userId: notification
+                                }, {
+                                    $push: {
+                                        notifications: {
+                                            notifications: `session started which one is created by ${findCreateSessionUser.firstName}`,
+                                            userId: findCreateSessionUser._id,
+                                            status: 9
+                                        }
+                                    }
+                                })
+
+                            } else {
+                                const savedata = notificationModel({
+                                    userId: notification,
                                     notifications: {
                                         notifications: `session started which one is created by ${findCreateSessionUser.firstName}`,
                                         userId: findCreateSessionUser._id,
                                         status: 9
                                     }
-                                }
-                            })
+                                })
+                                await savedata.save();
 
-                        } else {
-                            const savedata = notificationModel({
-                                userId: notification,
-                                notifications: {
-                                    notifications: `session started which one is created by ${findCreateSessionUser.firstName}`,
-                                    userId: findCreateSessionUser._id,
-                                    status: 9
-                                }
-                            })
-                            await savedata.save();
+                            }
 
                         }
+
                     }
 
                     io.emit("sessionJoinSuccess", "session started");
                 } else {
-
+                    console.log("else----------------------");
                     const commentSession = await sessionCommentModel.findOne({
                         sessionId: arg.session_id,
                         "joinUser.userId": mongoose.Types.ObjectId(arg.create_session_user)
@@ -2642,53 +2628,42 @@ function socket(io) {
                         const findCreateSessionUser = await userModel.findOne({
                             _id: findIdInSession.participants[0].participants_3
                         })
-                        if (findUser.fcm_token) {
-                            // const title = findCreateSessionUser.firstName;
-                            // const body = `session is joing by ${findCreateSessionUser.firstName}`;
+                        console.log("findCreateSessionUser::-", findCreateSessionUser);
 
-                            // const text = "join session";
-                            // const sendBy = (findCreateSessionUser._id).toString();
-                            // const registrationToken = findUser.fcm_token
-                            // Notification.sendPushNotificationFCM(
-                            //     registrationToken,
-                            //     title,
-                            //     body,
-                            //     text,
-                            //     sendBy,
-                            //     true
-                            // );
-                        }
+                        if (findCreateSessionUser != null) {
 
-
-                        const findInNotification = await notificationModel.findOne({
-                            userId: notification
-                        })
-
-                        if (findInNotification) {
-
-                            await notificationModel.updateOne({
+                            const findInNotification = await notificationModel.findOne({
                                 userId: notification
-                            }, {
-                                $push: {
+                            })
+
+                            if (findInNotification) {
+
+                                await notificationModel.updateOne({
+                                    userId: notification
+                                }, {
+                                    $push: {
+                                        notifications: {
+                                            notifications: `session started which one is created by ${findCreateSessionUser.firstName}`,
+                                            userId: findCreateSessionUser._id,
+                                            status: 9
+                                        }
+                                    }
+                                })
+
+                            } else {
+                                const savedata = notificationModel({
+                                    userId: notification,
                                     notifications: {
                                         notifications: `session started which one is created by ${findCreateSessionUser.firstName}`,
                                         userId: findCreateSessionUser._id,
                                         status: 9
                                     }
-                                }
-                            })
+                                })
+                                await savedata.save();
+                            }
 
-                        } else {
-                            const savedata = notificationModel({
-                                userId: notification,
-                                notifications: {
-                                    notifications: `session started which one is created by ${findCreateSessionUser.firstName}`,
-                                    userId: findCreateSessionUser._id,
-                                    status: 9
-                                }
-                            })
-                            await savedata.save();
                         }
+
                     }
 
                     await sessionModel.updateOne(
@@ -2698,7 +2673,10 @@ function socket(io) {
                         { $inc: { countJoinUser: 1 } }
                     )
 
+                    console.log('hello-----111----------------');
+
                     if (commentSession) { } else {
+                        console.log('hello----------------');
                         await sessionCommentModel.updateOne({
                             sessionId: arg.session_id,
                         }, {
@@ -3082,7 +3060,8 @@ function socket(io) {
         socket.on("commentOnLiveSession", async (arg) => {
             const findSession = await sessionModel.findOne({
                 _id: arg.session_id
-            })
+            });
+
             if (findSession) {
 
                 const findInCommentSessionModel = await sessionCommentModel.findOne({
@@ -3096,6 +3075,9 @@ function socket(io) {
                         status: 1
                     }
                     AllJoinUser.push(statusWithId)
+
+                    // console.log('joinUser::', findInCommentSessionModel.joinUser);
+
                     for (const joinUser of findInCommentSessionModel.joinUser) {
                         const statusWithId = {
                             userId: joinUser.userId,
@@ -3104,11 +3086,9 @@ function socket(io) {
                         AllJoinUser.push(statusWithId)
                     }
 
-
-
                     const findUser = await userModel.findOne({
                         _id: arg.user_id
-                    })
+                    });
 
                     await sessionCommentModel.updateOne({
                         sessionId: arg.session_id
@@ -3125,7 +3105,7 @@ function socket(io) {
 
                     const final_data = []
                     for (const sendComment of AllJoinUser) {
-
+                        console.log('-------', sendComment.userId);
                         if ((sendComment.userId).toString() == (arg.user_id).toString()) {
                             const commentData = {
                                 userId: arg.user_id,
@@ -3134,11 +3114,12 @@ function socket(io) {
                                 profile: findUser.photo[0] ? findUser.photo[0].res : "",
                                 status: sendComment.status
                             }
+                            console.log('commentData:::::::::', commentData);
                             final_data.push(commentData)
-                        } else {
-
                         }
                     }
+
+                    console.log('AllJoinUser::', final_data);
 
                     for (const sendComment of AllJoinUser) {
                         const userRoom = `User${sendComment.userId}`
@@ -3574,11 +3555,11 @@ function socket(io) {
                     }
 
 
-                    if((findSession.participants[0].participants_1).toString() == arg.participant_id){
+                    if ((findSession.participants[0].participants_1).toString() == arg.participant_id) {
                         intUserId = findSession.participants[0].P1IntId
-                    }else if((findSession.participants[0].participants_2).toString() == arg.participant_id){
+                    } else if ((findSession.participants[0].participants_2).toString() == arg.participant_id) {
                         intUserId = findSession.participants[0].P2IntId
-                    }else if((findSession.participants[0].participants_3).toString() == arg.participant_id){
+                    } else if ((findSession.participants[0].participants_3).toString() == arg.participant_id) {
                         intUserId = findSession.participants[0].P3IntId
                     }
 
